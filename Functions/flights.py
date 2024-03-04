@@ -65,15 +65,87 @@ class FlightData:
     
 
     def departing_flights_airport(airport, internal=False):
-        return None
-    
+"""
+    Display flights from the given airport.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing flight information.
+        airport (str): The airport code.
+        internal (bool, optional): If True, display only internal flights.
+                                   If False, display all flights. Default is False.
+"""
+        # Join on Source airport
+        airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
+        # Rename the column
+        airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
+        # Join on Destination airport
+        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
+        # Rename the column if needed
+        airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
+        # Drop the additional index columns
+        airport_info_2 = airport_info_2.reset_index(drop=True)
+        
+        # Filter flights based on the given source airport
+        source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
+
+        if internal:
+         # Filter for internal flights (destination in the same country)
+            source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
+
+        # Check if there are any flights to display
+        if not source_flights.empty:
+            if internal:
+                print(f"Internal flights from {airport} to destinations in the same country:")
+            else:
+                print(f"All flights from {airport}:")
+
+            print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
+        else:
+             print(f"No internal flights.")
+         
 
     def airplane_models(country=None):
         return None
     
     
     def departing_flights_country(country, internal=False):
-        return None
+    """
+    Display flights from the given country.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing flight information.
+        airport (str): The airport code.
+        internal (bool, optional): If True, display only internal flights.
+                                   If False, display all flights. Default is False.
+    """
+    # Join on Source airport
+    airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
+    # Rename the column
+    airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
+    # Join on Destination airport
+    airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
+    # Rename the column if needed
+    airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
+    # Drop the additional index columns
+    airport_info_2 = airport_info_2.reset_index(drop=True)
+        
+    # Filter flights based on the given source country
+    source_flights = airport_info_2[airport_info_2['Source Country'] == country]
+
+    if internal:
+        # Filter for internal flights (destination in the same country)
+        source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
+
+    # Check if there are any flights to display
+    if not source_flights.empty:
+        if internal:
+            print(f"Internal flights from {country} to destinations in the same country:")
+        else:
+            print(f"All flights from {country}:")
+
+        print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
+    else:
+        print(f"No internal flights.")
     
 
 
@@ -82,4 +154,4 @@ flight_data = FlightData()
 flight_data.download_data()
 flight_data.read_data()
 
-print(flight_data.flights_df)
+print(flight_data.departing_flights_country)

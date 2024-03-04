@@ -11,16 +11,46 @@ from pydantic import BaseModel
 from distances import haversine_distance
 
 class FlightData:
+    """
+    This class examines a dataset on international flight and airports
+
+
+    Attributes:
+    --------------
+    airplanes_df: pandas.DataFrame
+        DataFrame containing information about several airplane models
+    airports_df: pandas.DataFrame
+        Dataframe containing information about several international airports
+    airlines_df: pandas.DataFrame
+        DataFrame containing information about several international airlines
+    routes_df: pandas.DataFrame
+        DataFrame containing information about several domestic and international flights
+
+    Methods:
+    --------------
+    plot_airports:
+        blablala
+    distance_analysis:
+        blablabla
+    departing_flights_airports:
+        blablabla
+    airplane_models:
+        blablabla
+    departing_flights_country:
+        blablabla
+    """
+
+    
     def __init__(self):
         self.download_dir = "downloads"
         self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
         self.data_files = {
-            "planes": "airplanes.csv",
+            "airplanes": "airplanes.csv",
             "airports": "airports.csv",
             "airlines": "airlines.csv",
             "routes": "routes.csv"
         }
-        self.planes_df = None
+        self.airplanes_df = None
         self.airports_df = None
         self.airlines_df = None
         self.routes_df = None
@@ -50,7 +80,7 @@ class FlightData:
             print("Data directory does not exist. Please download the data first.")
             return
 
-        self.flights_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["planes"]))
+        self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["planes"]))
         self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]))
         self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]))
         self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]))

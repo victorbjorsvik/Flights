@@ -362,14 +362,3 @@ class FlightData:
             print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
         else:
             print(f"No internal flights.")
-    
-
-
-# Instantiate the class and download the data
-flight_data = FlightData()
-#print(flight_data.airplanes_df)
-#print(flight_data.airports_df)
-#print(flight_data.airlines_df)
-#print(flight_data.routes_df)
-
-flight_data.departing_flights_country("Germany")

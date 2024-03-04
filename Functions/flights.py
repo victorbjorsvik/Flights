@@ -63,7 +63,7 @@ class FlightData:
         return None
     
 
-    def distance_analysis(airport_distances: pd.DataFrame):
+    def distance_analysis(self):
         airport_info_3 = self.routes_df.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']], on='Source airport')
         # Rename the column
         airport_info_3.rename(columns={'Latitude': 'Source Latitude'}, inplace=True)
@@ -89,6 +89,7 @@ class FlightData:
         source_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Source Latitude'], lon=row['Source Longitude']), axis=1)
         dest_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Destination Latitude'], lon=row['Destination Longitude']), axis=1)
 
+        print(source_coords, "hello")
         # Calculate distances for each flight
         airport_distances['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
 
@@ -100,21 +101,27 @@ class FlightData:
         plt.ylabel("Frequency")
         plt.show()
 
-    def departing_flights_airport(airport, internal=False):
+    def departing_flights_airport(self, airport, internal=False):
 
         # Join on Source airport
         airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
         # Rename the column
         airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
+        
+        #print(airport_info_1)
+        
         # Join on Destination airport
         airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
         # Rename the column if needed
         airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
         # Drop the additional index columns
         airport_info_2 = airport_info_2.reset_index(drop=True)
+
+        #print(airport_info_2)
         
         # Filter flights based on the given source airport
         source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
+        #print(source_flights)
 
         if internal:
             # Filter for internal flights (destination in the same country)
@@ -136,7 +143,7 @@ class FlightData:
         return None
     
     
-    def departing_flights_country(country, internal=False): 
+    def departing_flights_country(self, country, internal=False): 
 
         # Join on Source airport
         airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
@@ -174,4 +181,4 @@ flight_data = FlightData()
 flight_data.download_data()
 flight_data.read_data()
 
-flight_data.distance_analysis()
+flight_data.departing_flights_airport("AER")

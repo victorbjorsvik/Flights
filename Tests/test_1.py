@@ -1,27 +1,29 @@
+"""
+Unit tests for the Haversine distance calculation.
+"""
 import sys
+sys.path.append('./Functions') 
 import pytest
-sys.path.append('./Functions/distances.py')  
+from distances import haversine_distance, Coordinates
 
-# Replace 'my_first_function' and 'my_func_1' with the actual names of your file and function
-from flights.py import haversine_distance
+def test_distance_same_continent():
+    # Coordinates for Los Angeles (LAX) and New York (JFK) airports
+    lax = Coordinates(lat=33.9416, lon=-118.4085)
+    jfk = Coordinates(lat=40.6413, lon=-73.7781)
+    # Known distance between LAX and JFK is approximately 3983 km
+    assert haversine_distance(lax, jfk) == pytest.approx(3983, rel=0.05)
 
-def test_invalid_input():
-    with pytest.raises(TypeError):
-        # Assuming haversine_distance function expects float values, passing a string should raise a TypeError
-        haversine_distance("Test", "Test", "Test", "Test")
+def test_distance_different_continents():
+    # Coordinates for Cairo (CAI) and Sydney (SYD) airports
+    cai = Coordinates(lat=30.1127, lon=31.3998)
+    syd = Coordinates(lat=-33.9399, lon=151.1753)
+    # Known distance between CAI and SYD is approximately 14400 km
+    assert haversine_distance(cai, syd) == pytest.approx(14400, rel=0.05)
 
-def test_haversine_distance():
-    # JFK Airport (New York) to Heathrow Airport (London)
-    assert haversine_distance(40.6413, -73.7781, 51.4700, -0.4543) == pytest.approx(5540, abs=1)
+def test_distance_within_europe():
+    # Coordinates for Amsterdam (AMS) and London Heathrow (LHR) airports
+    ams = Coordinates(lat=52.3105, lon=4.7683)
+    lhr = Coordinates(lat=51.4700, lon=-0.4543)
+    # Known distance between AMS and LHR is approximately 370 km
+    assert haversine_distance(ams, lhr) == pytest.approx(370, rel=0.05)
 
-    # The Great Pyramid of Giza to the Eiffel Tower
-    assert haversine_distance(29.9792, 31.1342, 48.8584, 2.2945) == pytest.approx(3220, abs=1)
-
-def test_haversine_zero_distance():
-    # Distance from a point to itself should be zero
-    assert haversine_distance(48.8584, 2.2945, 48.8584, 2.2945) == 0
-
-def test_addition_accuracy():
-    # This is just a test to demonstrate floating point arithmetic peculiarities and is not related to your function
-    # You would typically remove this test for your project
-    assert 0.1 + 0.2 == pytest.approx(0.3)

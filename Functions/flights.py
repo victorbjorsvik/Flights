@@ -362,3 +362,8 @@ class FlightData:
             print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
         else:
             print(f"No internal flights.")
+
+
+flight_data = FlightData()
+
+flight_data.departing_flights_country("Germany")

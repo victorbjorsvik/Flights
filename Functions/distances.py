@@ -26,10 +26,10 @@ def haversine_distance(coord1: Coordinates, coord2: Coordinates) -> float:
     radius_earth_km = 6371.0
     
     # Convert latitude and longitude from degrees to radians
-    lat1_rad = math.radians(coord1.lat)
+    ''' lat1_rad = math.radians(coord1.lat)
     lon1_rad = math.radians(coord1.lon)
     lat2_rad = math.radians(coord2.lat)
-    lon2_rad = math.radians(coord2.lon)
+    lon2_rad = math.radians(coord2.lon)'''
     
     # Difference in coordinates
     delta_lat = lat2_rad - lat1_rad

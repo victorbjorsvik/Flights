@@ -63,7 +63,7 @@ class FlightData:
         return None
     
 
-    def distance_analysis(airport_distances: pd.DataFrame):
+    def distance_analysis(self):
         airport_info_3 = self.routes_df.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']], on='Source airport')
         # Rename the column
         airport_info_3.rename(columns={'Latitude': 'Source Latitude'}, inplace=True)
@@ -100,8 +100,25 @@ class FlightData:
         plt.ylabel("Frequency")
         plt.show()
 
-    def departing_flights_airport(airport, internal=False):
+    def departing_flights_airport(self, airport, internal=False):
 
+        """
+        Display information about flights departing from the given airport.
+
+        Args:
+            airport (str): The airport code.
+            internal (bool, optional): If True, display only internal flights.
+                                    If False, display all flights. Default is False.
+
+        Returns:
+        --------------
+        None
+
+        Outputs information about departing flights from the specified airport.
+        If internal is True, only internal flights (destination in the same country) are displayed.
+        If internal is False, all departing flights are displayed.
+        Prints a message if no flights are found for the given criteria.
+        """
         # Join on Source airport
         airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
         # Rename the column
@@ -136,8 +153,25 @@ class FlightData:
         return None
     
     
-    def departing_flights_country(country, internal=False): 
+    def departing_flights_country(self, country, internal=False): 
 
+        """
+        Display information about flights departing from airports in the given country.
+
+        Args:
+            country (str): The name of the country for which departing flights are to be displayed.
+            internal (bool, optional): If True, display only internal flights.
+                                    If False, display all flights. Default is False.
+
+        Returns:
+        --------------
+        None
+
+        Outputs information about departing flights from airports in the specified country.
+        If internal is True, only internal flights (destination in the same country) are displayed.
+        If internal is False, all departing flights from the specified country are displayed.
+        Prints a message if no flights are found for the given criteria.
+        """
         # Join on Source airport
         airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
         # Rename the column

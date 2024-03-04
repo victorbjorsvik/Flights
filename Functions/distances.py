@@ -31,6 +31,9 @@ def haversine_distance(coord1: Coordinates, coord2: Coordinates) -> float:
     lat2_rad = math.radians(coord2.lat)
     lon2_rad = math.radians(coord2.lon)
     
+    lat1_rad, lon1_rad = math.radians(coord1[0]), math.radians(coord1[1])
+    lat2_rad, lon2_rad = math.radians(coord2[0]), math.radians(coord2[1])
+
     # Difference in coordinates
     delta_lat = lat2_rad - lat1_rad
     delta_lon = lon2_rad - lon1_rad
@@ -39,8 +42,11 @@ def haversine_distance(coord1: Coordinates, coord2: Coordinates) -> float:
     a = (math.sin(delta_lat / 2) ** 2 +
          math.cos(lat1_rad) * math.cos(lat2_rad) *
          math.sin(delta_lon / 2) ** 2)
+        
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     
+
     # Distance in km
     distance = radius_earth_km * c
     return np.round(distance, 4)
+

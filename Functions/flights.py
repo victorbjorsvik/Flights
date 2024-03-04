@@ -2,13 +2,16 @@
 Module to handle flight data
 """
 
+
+
 import os
 import pandas as pd
 import requests
 from zipfile import ZipFile
 from typing import List, Dict, Union
 from pydantic import BaseModel
-from distances import haversine_distance
+from distances import haversine_distance, Coordinates
+import matplotlib.pyplot as plt
 
 class FlightData:
     def __init__(self):
@@ -60,20 +63,45 @@ class FlightData:
         return None
     
 
-    def distance_analysis():
-        return None
+    def distance_analysis(airport_distances: pd.DataFrame):
+        airport_info_3 = self.routes_df.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']], on='Source airport')
+        # Rename the column
+        airport_info_3.rename(columns={'Latitude': 'Source Latitude'}, inplace=True)
+        airport_info_3.rename(columns={'Longitude': 'Source Longitude'}, inplace=True)
+        # Join on Destination airport
+        airport_info_4= airport_info_3.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']],  on='Destination airport', rsuffix='_dest')
+        # Rename the column
+        airport_info_4.rename(columns={'Latitude': 'Destination Latitude'}, inplace=True)
+        airport_info_4.rename(columns={'Longitude': 'Destination Longitude'}, inplace=True)
+        # Drop the additional index columns
+        airport_info_4 = airport_info_4.reset_index(drop=True)
+        # Final DataFrame for function
+        airport_distances = airport_info_4[['Source airport', 'Source Latitude','Source Longitude' , 'Destination airport', 'Destination Latitude',  'Destination Longitude']]
+        
+        """
+        Plot the distribution of flight distances for all flights.
+
+        Args:
+            df (pd.DataFrame): DataFrame containing flight information.
+        """
     
+        # Create Coordinates instances for each row
+        source_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Source Latitude'], lon=row['Source Longitude']), axis=1)
+        dest_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Destination Latitude'], lon=row['Destination Longitude']), axis=1)
+
+        # Calculate distances for each flight
+        airport_distances['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
+
+        # Plot the distribution of flight distances
+        plt.figure(figsize=(10, 6))
+        plt.hist(airport_distances['Distance'], bins=20, edgecolor='black')
+        plt.title("Distribution of Flight Distances")
+        plt.xlabel("Distance (km)")
+        plt.ylabel("Frequency")
+        plt.show()
 
     def departing_flights_airport(airport, internal=False):
-"""
-    Display flights from the given airport.
 
-    Args:
-        df (pd.DataFrame): DataFrame containing flight information.
-        airport (str): The airport code.
-        internal (bool, optional): If True, display only internal flights.
-                                   If False, display all flights. Default is False.
-"""
         # Join on Source airport
         airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
         # Rename the column
@@ -89,7 +117,7 @@ class FlightData:
         source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
 
         if internal:
-         # Filter for internal flights (destination in the same country)
+            # Filter for internal flights (destination in the same country)
             source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
 
         # Check if there are any flights to display
@@ -101,51 +129,43 @@ class FlightData:
 
             print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
         else:
-             print(f"No internal flights.")
-         
+                print(f"No internal flights.")
+            
 
     def airplane_models(country=None):
         return None
     
     
-    def departing_flights_country(country, internal=False):
-    """
-    Display flights from the given country.
+    def departing_flights_country(country, internal=False): 
 
-    Args:
-        df (pd.DataFrame): DataFrame containing flight information.
-        airport (str): The airport code.
-        internal (bool, optional): If True, display only internal flights.
-                                   If False, display all flights. Default is False.
-    """
-    # Join on Source airport
-    airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
-    # Rename the column
-    airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
-    # Join on Destination airport
-    airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
-    # Rename the column if needed
-    airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
-    # Drop the additional index columns
-    airport_info_2 = airport_info_2.reset_index(drop=True)
+        # Join on Source airport
+        airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
+        # Rename the column
+        airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
+        # Join on Destination airport
+        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
+        # Rename the column if needed
+        airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
+        # Drop the additional index columns
+        airport_info_2 = airport_info_2.reset_index(drop=True)
         
-    # Filter flights based on the given source country
-    source_flights = airport_info_2[airport_info_2['Source Country'] == country]
+        # Filter flights based on the given source country
+        source_flights = airport_info_2[airport_info_2['Source Country'] == country]
 
-    if internal:
-        # Filter for internal flights (destination in the same country)
-        source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
-
-    # Check if there are any flights to display
-    if not source_flights.empty:
         if internal:
-            print(f"Internal flights from {country} to destinations in the same country:")
-        else:
-            print(f"All flights from {country}:")
+            # Filter for internal flights (destination in the same country)
+            source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
 
-        print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
-    else:
-        print(f"No internal flights.")
+        # Check if there are any flights to display
+        if not source_flights.empty:
+            if internal:
+                print(f"Internal flights from {country} to destinations in the same country:")
+            else:
+                print(f"All flights from {country}:")
+
+            print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
+        else:
+            print(f"No internal flights.")
     
 
 
@@ -154,4 +174,4 @@ flight_data = FlightData()
 flight_data.download_data()
 flight_data.read_data()
 
-print(flight_data.departing_flights_country)
+flight_data.distance_analysis()

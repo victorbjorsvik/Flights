@@ -1,11 +1,10 @@
-# Develop a function to calculate the real distances between airports in kilometers in its own .py file with the information in the datasets. 
-# Approximate the earth to a sphere (it is safe to disregard altitude). 
-# Develop a unit test to this function with three cases, where one must be between two airports in different continents.
-# Implement a way to make the distances between airports part of the information contained in your future class instance.
-
+"""
+A module to calculate the distance between two points on the Earth using the Haversine formula.
+"""
 
 from pydantic import BaseModel
 import math
+import numpy as np
 
 # Define a Pydantic model for the coordinates
 class Coordinates(BaseModel):
@@ -17,14 +16,14 @@ def haversine_distance(coord1: Coordinates, coord2: Coordinates) -> float:
     Calculate the great-circle distance between two points on the Earth.
 
     Args:
-    coord1 (Coordinates): The latitude and longitude of the first point.
-    coord2 (Coordinates): The latitude and longitude of the second point.
+        coord1 (Coordinates): The latitude and longitude of the first point.
+        coord2 (Coordinates): The latitude and longitude of the second point.
 
     Returns:
-    float: The distance in kilometers.
+        float: The distance in kilometers, rounded to 4 decimal places.
     """
     # Radius of the Earth in km
-    R = 6371.0
+    radius_earth_km = 6371.0
     
     # Convert latitude and longitude from degrees to radians
     lat1_rad = math.radians(coord1.lat)
@@ -37,16 +36,11 @@ def haversine_distance(coord1: Coordinates, coord2: Coordinates) -> float:
     delta_lon = lon2_rad - lon1_rad
     
     # Haversine formula
-    a = math.sin(delta_lat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
+    a = (math.sin(delta_lat / 2) ** 2 +
+         math.cos(lat1_rad) * math.cos(lat2_rad) *
+         math.sin(delta_lon / 2) ** 2)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     
     # Distance in km
-    distance = R * c
-    return distance
-
-# Example usage:
-# coord1 = Coordinates(lat=52.5163, lon=13.3777)
-# coord2 = Coordinates(lat=52.5200, lon=13.4050)
-# distance = haversine_distance(coord1, coord2)
-# print(f"The distance is {distance} km")
-
+    distance = radius_earth_km * c
+    return np.round(distance, 4)

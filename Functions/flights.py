@@ -56,8 +56,26 @@ class FlightData:
         self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]))
 
 
-        # Remove superfluous columns
-        # Add code to remove unnecessary columns from DataFrames if needed
+    def plot_airports(country):
+        return None
+    
+
+    def distance_analysis():
+        return None
+    
+
+    def departing_flights_airport(airport, internal=False):
+        return None
+    
+
+    def airplane_models(country=None):
+        return None
+    
+    
+    def departing_flights_country(country, internal=False):
+        return None
+    
+
 
 # Instantiate the class and download the data
 flight_data = FlightData()

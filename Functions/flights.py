@@ -40,7 +40,7 @@ class FlightData:
         blablabla
     """
 
-    
+
     def __init__(self):
         self.download_dir = "downloads"
         self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
@@ -55,7 +55,6 @@ class FlightData:
         self.airlines_df = None
         self.routes_df = None
 
-    def download_data(self):
         if not os.path.exists(self.download_dir):
             os.makedirs(self.download_dir)
 
@@ -75,15 +74,14 @@ class FlightData:
         else:
             print("Data already exists.")
 
-    def read_data(self):
         if not os.path.exists(self.download_dir):
             print("Data directory does not exist. Please download the data first.")
             return
 
-        self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["planes"]))
-        self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]))
-        self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]))
-        self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]))
+        self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airplanes"]), index_col=0)
+        self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]), index_col=0)
+        self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]), index_col=0)
+        self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
 
 
     def plot_airports(country):
@@ -109,7 +107,7 @@ class FlightData:
 
 # Instantiate the class and download the data
 flight_data = FlightData()
-flight_data.download_data()
-flight_data.read_data()
-
-print(flight_data.flights_df)
+print(flight_data.airplanes_df)
+print(flight_data.airports_df)
+print(flight_data.airlines_df)
+print(flight_data.routes_df)

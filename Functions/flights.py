@@ -8,6 +8,7 @@ import requests
 from zipfile import ZipFile
 from typing import List, Dict, Union
 from pydantic import BaseModel
+from distances import haversine_distance
 
 class FlightData:
     def __init__(self):
@@ -54,6 +55,7 @@ class FlightData:
         self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]))
         self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]))
 
+
         # Remove superfluous columns
         # Add code to remove unnecessary columns from DataFrames if needed
 
@@ -61,3 +63,5 @@ class FlightData:
 flight_data = FlightData()
 flight_data.download_data()
 flight_data.read_data()
+
+print(flight_data.flights_df)

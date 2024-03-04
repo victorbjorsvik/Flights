@@ -209,7 +209,7 @@ class FlightData:
         self.routes_df['Source airport ID'] = self.routes_df['Source airport ID'].astype(str)
         self.airports_df['Airport ID'] = self.airports_df['Airport ID'].astype(str)
     
-    # Merge routes with airports to get the country of each route
+        # Merge routes with airports to get the country of each route
         df_routes_with_country = pd.merge(self.routes_df, self.airports_df[['Airport ID', 'Country']], left_on='Source airport ID', right_on='Airport ID', how='left')
         
         # Merge the result with airplanes to get the model names (on equipment)
@@ -239,7 +239,9 @@ class FlightData:
 
 # Instantiate the class and download the data
 flight_data = FlightData()
-print(flight_data.airplanes_df)
-print(flight_data.airports_df)
-print(flight_data.airlines_df)
-print(flight_data.routes_df)
+#print(flight_data.airplanes_df)
+#print(flight_data.airports_df)
+#print(flight_data.airlines_df)
+#print(flight_data.routes_df)
+
+flight_data.plot_airports("Germany")

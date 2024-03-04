@@ -8,7 +8,7 @@ import requests
 from zipfile import ZipFile
 from typing import List, Dict, Union
 from pydantic import BaseModel
-from distances import haversine_distance
+from distances import haversine_distance, Coordinates
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -183,12 +183,9 @@ class FlightData:
         airport_info_4 = airport_info_4.reset_index(drop=True)
         # Final DataFrame for function
         airport_distances = airport_info_4[['Source airport', 'Source Latitude','Source Longitude' , 'Destination airport', 'Destination Latitude',  'Destination Longitude']]
-
         # Create Coordinates instances for each row
         source_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Source Latitude'], lon=row['Source Longitude']), axis=1)
         dest_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Destination Latitude'], lon=row['Destination Longitude']), axis=1)
-
-        print(source_coords, "hello")
         # Calculate distances for each flight
         airport_distances['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
 
@@ -362,8 +359,3 @@ class FlightData:
             print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
         else:
             print(f"No internal flights.")
-
-
-flight_data = FlightData()
-
-flight_data.departing_flights_country("Germany")

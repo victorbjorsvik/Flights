@@ -359,3 +359,23 @@ class FlightData:
             print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
         else:
             print(f"No internal flights.")
+
+    def aircrafts(self):
+        """
+        This method returns the aircrafts dataframe
+        """
+        # TODO
+        return None
+    
+    def aircraft_info(self, aircraft:str):
+        """
+        This method returns the information of a specific aircraft
+        """
+        # TODO
+        return None
+    def airport_info(self, airport:str):
+        """
+        This method returns the information of a specific airport
+        """
+        # TODO
+        return None

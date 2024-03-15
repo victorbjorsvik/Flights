@@ -19,6 +19,54 @@ import seaborn as sns
 from pandasai import SmartDataframe
 from ast import literal_eval
 
+# Helper functions for plotting flight routes on maps
+def plot_route(source_airport, dest_airport, source_lat, source_lon, dest_lat, dest_lon, ax):
+    """
+    Plots a single flight route on the given axis.
+    """
+    # Plot the flight route
+    ax.plot([source_lon, dest_lon], [source_lat, dest_lat], 'ro-', transform=ccrs.PlateCarree())
+    
+    # Add airport markers
+    ax.plot(source_lon, source_lat, 'bo', markersize=8, transform=ccrs.PlateCarree())
+    ax.plot(dest_lon, dest_lat, 'bo', markersize=8, transform=ccrs.PlateCarree())
+    
+    # Add airport labels
+    #ax.text(source_lon + 0.5, source_lat + 0.5, source_airport, transform=ccrs.PlateCarree())
+    #ax.text(dest_lon + 0.5, dest_lat + 0.5, dest_airport, transform=ccrs.PlateCarree())
+    
+def plot_all_routes(df):
+    """
+    Plots all flight routes from the given DataFrame on a map.
+    """
+    fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
+
+    # Add geographical features
+    ax.add_feature(cfeature.LAND)
+    ax.add_feature(cfeature.COASTLINE)
+    ax.add_feature(cfeature.BORDERS, linestyle=':')
+
+    # Iterate over the rows in the DataFrame and plot each route
+    for _, row in df.iterrows():
+        source_airport = row['Source airport']
+        dest_airport = row['Destination airport']
+        source_lat = row['Source_lat']
+        source_lon = row['Source_lon']
+        dest_lat = row['Dest_lat']
+        dest_lon = row['Dest_lon']
+
+        plot_route(source_airport, dest_airport, source_lat, source_lon, dest_lat, dest_lon, ax)
+
+    # Set the map extent to fit all routes
+    max_lon = max(df['Source_lon'].max(), df['Dest_lon'].max())
+    min_lon = min(df['Source_lon'].min(), df['Dest_lon'].min())
+    max_lat = max(df['Source_lat'].max(), df['Dest_lat'].max())
+    min_lat = min(df['Source_lat'].min(), df['Dest_lat'].min())
+    ax.set_extent([min_lon - 5, max_lon + 5, min_lat - 5, max_lat + 5], crs=ccrs.PlateCarree())
+
+    plt.title('All Flight Routes')
+    plt.show()
+
 class FlightData:
     """
     This class examines a dataset on international flight and airports
@@ -130,7 +178,7 @@ class FlightData:
         # Check if any airports exist for the given country
         if airports_country.empty:
             print(f"No airports found for {self.country}")
-            return 
+            return None
         
         # Calculate median and standard deviation for latitude and longitude
         median_lat = airports_country['Latitude'].median()
@@ -219,24 +267,33 @@ class FlightData:
         If there are no departing flights or no internal flights, appropriate messages are printed.
         """
         # Join on Source airport
-        airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
+        airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
         # Rename the column
-        airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
+        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
+        airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
         
-        #print(airport_info_1)
         
-        # Join on Destination airport
-        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
+        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
         # Rename the column if needed
-        airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
+        airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
         # Drop the additional index columns
         airport_info_2 = airport_info_2.reset_index(drop=True)
-
-        #print(airport_info_2)
         
-        # Filter flights based on the given source airport
+        # Filter flights based on the given source country
         source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
-        #print(source_flights)
+        source_flights = source_flights[~source_flights.duplicated()]
+
+        del airport_info_1, airport_info_2
+        
+        # We only want to count each route 1 time - let's deal with this
+        # Create a new column 'Route' that represents the route in a direction-agnostic way
+        source_flights['Route'] = source_flights.apply(lambda x: '-'.join(sorted([x['Source airport'], x['Destination airport']])), axis=1)
+
+        # Drop duplicates based on the 'Route' column
+        source_flights = source_flights.drop_duplicates(subset=['Route'])
+
+        # Drop the 'Route' column if you don't need it anymore
+        source_flights = source_flights.drop('Route', axis=1)
 
         if internal:
             # Filter for internal flights (destination in the same country)
@@ -249,7 +306,7 @@ class FlightData:
             else:
                 print(f"All flights from {airport}:")
 
-            print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
+            plot_all_routes(source_flights)
         else:
                 print(f"No internal flights.")
     
@@ -333,20 +390,34 @@ class FlightData:
         If internal is True, only flights with the same source and destination country are displayed.
         If there are no departing flights or no internal flights, appropriate messages are printed.
         """
-
         # Join on Source airport
-        airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
+        airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
         # Rename the column
-        airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
-        # Join on Destination airport
-        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
+        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
+        airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
+        
+        
+        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
         # Rename the column if needed
-        airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
+        airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
         # Drop the additional index columns
         airport_info_2 = airport_info_2.reset_index(drop=True)
         
         # Filter flights based on the given source country
         source_flights = airport_info_2[airport_info_2['Source Country'] == country]
+        source_flights = source_flights[~source_flights.duplicated()]
+
+        del airport_info_1, airport_info_2
+
+        # We only want to count each route 1 time - let's deal with this
+        # Create a new column 'Route' that represents the route in a direction-agnostic way
+        source_flights['Route'] = source_flights.apply(lambda x: '-'.join(sorted([x['Source airport'], x['Destination airport']])), axis=1)
+
+        # Drop duplicates based on the 'Route' column
+        source_flights = source_flights.drop_duplicates(subset=['Route'])
+
+        # Drop the 'Route' column if you don't need it anymore
+        source_flights = source_flights.drop('Route', axis=1)
 
         if internal:
             # Filter for internal flights (destination in the same country)
@@ -359,7 +430,8 @@ class FlightData:
             else:
                 print(f"All flights from {country}:")
 
-            print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
+            plot_all_routes(source_flights)
+
         else:
             print(f"No internal flights.")
 
@@ -440,5 +512,9 @@ except:
 
 flight_data = FlightData()
 
-print(flight_data.aircraft_info('Boeing 737-300'))
-flight_data.airport_info('LAX')
+#print(flight_data.aircraft_info('Boeing 737-300'))
+#flight_data.airport_info('LAX')
+
+#flight_data.departing_flights_country('Germany')
+
+flight_data.departing_flights_airport('JFK')

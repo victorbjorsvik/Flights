@@ -124,8 +124,8 @@ class FlightData:
         
         # Check if any airports exist for the given country
         if airports_country.empty:
-            print(f"No airports found for {self.country}")
-            return 
+            #print(f"No airports found for {self.country} ")
+            return None
         
         # Calculate median and standard deviation for latitude and longitude
         median_lat = airports_country['Latitude'].median()
@@ -379,3 +379,7 @@ class FlightData:
         """
         # TODO
         return None
+    
+test = 'ATL'
+flight_check = FlightData()
+flight_check.departing_flights_airport(test)

@@ -67,6 +67,11 @@ def plot_all_routes(df):
     plt.title('All Flight Routes')
     plt.show()
 
+
+###############################################################################################
+################################# FlightData class ############################################
+###############################################################################################
+
 class FlightData:
     """
     This class examines a dataset on international flight and airports

@@ -510,11 +510,12 @@ except:
     print('Error setting API key')
 
 
-flight_data = FlightData()
+#flight_data = FlightData()
 
 #print(flight_data.aircraft_info('Boeing 737-300'))
 #flight_data.airport_info('LAX')
 
 #flight_data.departing_flights_country('Germany')
 
-flight_data.departing_flights_airport('JFK')
+#flight_data.departing_flights_airport('JFK')
+#TEEST

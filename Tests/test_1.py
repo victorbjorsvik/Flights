@@ -2,7 +2,7 @@
 Unit tests for the Haversine distance calculation.
 """
 import sys
-sys.path.append('./Functions') 
+sys.path.append('./functions') 
 import pytest
 from distances import haversine_distance, Coordinates
 

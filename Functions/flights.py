@@ -12,7 +12,9 @@ from distances import haversine_distance, Coordinates
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-
+from langchain_openai import OpenAI, ChatOpenAI
+import langchain
+from IPython.display import Markdown, display
 
 class FlightData:
     """
@@ -373,9 +375,35 @@ class FlightData:
         """
         # TODO
         return None
+    
     def airport_info(self, airport:str):
         """
         This method returns the information of a specific airport
         """
-        # TODO
-        return None
+        airport_info = airport
+
+        llm = ChatOpenAI(temperature=0.1)
+
+        result = llm.invoke(f"""Give me the following facts about this airport: {airport_info}
+                                Airport Code: The unique three-letter code assigned to the airport.
+                                Location: The geographical coordinates (latitude and longitude) of the airport.
+                                Size: The size of the airport in terms of land area or number of runways.
+                                Facilities: Information about the facilities available at the airport, such as terminals, parking, lounges, etc.
+                                Traffic: Data on the number of passengers or flights handled by the airport annually.
+                                Runway Length: The length of the longest runway at the airport, which can indicate the types of aircraft that can operate there.
+                                Airlines Served: The list of airlines that operate out of the airport.
+                                History: Any significant historical or cultural information about the airport.
+                                Services: Additional services available at the airport, such as ground transportation, dining options, duty-free shopping, etc.
+                                Safety Records: Information about the airport's safety and security measures, including any notable incidents or accidents.""")
+
+        
+
+        return Markdown(result.content)
+
+
+
+
+flight_data = FlightData()
+
+
+print(flight_data.airport_info('LAX'))

@@ -12,11 +12,11 @@ from distances import haversine_distance, Coordinates
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from langchain_openai import OpenAI, ChatOpenAI
-import langchain
+#from langchain_openai import OpenAI, ChatOpenAI
+#import langchain
 from IPython.display import Markdown, display
 import seaborn as sns
-from pandasai import SmartDataframe
+#from pandasai import SmartDataframe
 from ast import literal_eval
 
 # Helper functions for plotting flight routes on maps
@@ -421,29 +421,70 @@ class FlightData:
         plt.show()
 
     
-    def departing_flights_country(self, country, internal=False): 
-        """
-        Retrieve and display information about departing flights from airports in a given country.
+    def departing_flights_country(self, country, internal=False, cutoff=1000.0): 
 
-        Args:
-            country (str): The name of the country for which departing flights will be retrieved.
-            internal (bool, optional): If True, only internal flights (with destination in the same country) will be displayed. Defaults to False.
+        def plot_all_routes_colors(df, cutoff):
+            """
+            Plots all flight routes from the given DataFrame on a map.
 
-        Returns:
-            None
+            Args:
+                df (DataFrame): DataFrame containing flight route information.
+                cutoff (float): The cutoff distance in kilometers. Routes with distances below this cutoff will be colored green.
 
-        This method retrieves information about departing flights from airports in the specified country and displays it.
-        It joins the routes and airports DataFrames to obtain flight information.
-        It filters flights based on the given source country and optionally on whether they are internal.
-        If internal is True, only flights with the same source and destination country are displayed.
-        If there are no departing flights or no internal flights, appropriate messages are printed.
-        """
+            Returns:
+                None
+            """
+            
+            fig, ax = plt.subplots(figsize=(15, 10), subplot_kw={'projection': ccrs.PlateCarree()})
+            ax.add_feature(cfeature.LAND, facecolor='lightgray')  # Use a light gray for the land to increase contrast
+            ax.add_feature(cfeature.COASTLINE, edgecolor='gray')
+            ax.add_feature(cfeature.BORDERS, linestyle=':', edgecolor='gray')
+
+            for _, row in df.iterrows():
+                source_lat = row['Source_lat']
+                source_lon = row['Source_lon']
+                dest_lat = row['Dest_lat']
+                dest_lon = row['Dest_lon']
+                distance = row['Distance']
+
+                # Set color based on distance for all flights
+                color = 'green' if distance < cutoff else '#d55e00'
+                
+                # Set marker style for all flights
+                marker_style = 'o' if row['Source Country'] == row['Destination Country'] else '^'
+
+                # Using markers to denote airport points
+                ax.plot([source_lon, dest_lon], [source_lat, dest_lat], linestyle='-', color=color, linewidth=0.5, alpha=0.8, transform=ccrs.PlateCarree())
+                ax.plot(source_lon, source_lat, marker_style, color=color, markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
+                ax.plot(dest_lon, dest_lat, marker_style, color=color, markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
+
+            # Create a custom legend to denote colors
+            from matplotlib.lines import Line2D
+            legend_elements = [
+                Line2D([0], [0], color='green', lw=2, label=f'Short Haul (<{cutoff} km)', marker='o', markersize=5),
+                Line2D([0], [0], color='#d55e00', lw=2, label=f'Long Haul (>={cutoff} km)', marker='^', markersize=5)
+            ]
+            ax.legend(handles=legend_elements, loc='upper left')
+
+            # Annotation
+            annotation_text = (f"Total distance of short-haul flights (< {cutoff}km): {total_distances:.2f} km\n"
+                            f"Number of flights considered short-haul in {country}: {short_haul_flights_count}")
+            ax.annotate(annotation_text, xy=(0.02, 0.02), xycoords='axes fraction', verticalalignment='top',
+                        bbox=dict(boxstyle="round,pad=0.3", edgecolor='green', facecolor='white'))
+            
+            emissions_annotation_text = f"Emissions saved by using train: {emissions_saved:.2f} kilograms"
+            ax.annotate(emissions_annotation_text, xy=(0.98, 0.02), xycoords='axes fraction', 
+                    horizontalalignment='right', verticalalignment='bottom',
+                    bbox=dict(boxstyle="round,pad=0.3", edgecolor='orange', facecolor='white', alpha=0.8))
+
+            plt.title('Flight Routes')
+            plt.show()
+
         # Join on Source airport
         airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
         # Rename the column
         airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
         airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
-        
         
         airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
         # Rename the column if needed
@@ -452,8 +493,8 @@ class FlightData:
         airport_info_2 = airport_info_2.reset_index(drop=True)
         
         # Filter flights based on the given source country
-        source_flights = airport_info_2[airport_info_2['Source Country'] == country]
-        source_flights = source_flights[~source_flights.duplicated()]
+        source_flights_all = airport_info_2[airport_info_2['Source Country'] == country]
+        source_flights = source_flights_all[~source_flights_all.duplicated()]
 
         del airport_info_1, airport_info_2
 
@@ -467,6 +508,24 @@ class FlightData:
         # Drop the 'Route' column if you don't need it anymore
         source_flights = source_flights.drop('Route', axis=1)
 
+        # Get coordinates for source and destination airports
+        source_coords = source_flights.apply(lambda row: Coordinates(lat=row['Source_lat'], lon=row['Source_lon']), axis=1)
+        dest_coords = source_flights.apply(lambda row: Coordinates(lat=row['Dest_lat'], lon=row['Dest_lon']), axis=1)
+        # Calculate distances for each flight
+        source_flights['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
+        short_haul = source_flights[source_flights['Distance']< cutoff]
+        total_distances = short_haul['Distance'].sum()
+
+        #Find the distances for our source_flights all dataframe
+        source_coords2 = source_flights_all.apply(lambda row: Coordinates(lat=row['Source_lat'], lon=row['Source_lon']), axis=1)
+        dest_coords2 = source_flights_all.apply(lambda row: Coordinates(lat=row['Dest_lat'], lon=row['Dest_lon']), axis=1)
+        source_flights_all['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords2, dest_coords2)] 
+        source_flights_all_short = source_flights_all[source_flights_all['Distance']< cutoff]
+
+        #Find and calculate total emissions
+        total_emissions = source_flights_all_short['Distance'].sum()*246
+        emissions_saved = total_emissions * (1-0.14)/1000
+
         if internal:
             # Filter for internal flights (destination in the same country)
             source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
@@ -478,10 +537,18 @@ class FlightData:
             else:
                 print(f"All flights from {country}:")
 
-            plot_all_routes(source_flights)
+            # After you've prepared 'source_flights' DataFrame and filtered it as needed
+            short_haul = source_flights[source_flights['Distance'] < cutoff]
+            total_distances = short_haul['Distance'].sum()
+            short_haul_flights_count = len(short_haul)
 
+            plot_all_routes_colors(source_flights, cutoff=cutoff)
+            print(f"Emissions saved by using train: {emissions_saved} kilograms")
+        
         else:
             print(f"No internal flights.")
+
+        
 
     def aircrafts(self):
             """
@@ -625,12 +692,15 @@ except:
     print('Error setting API key')
 
 
-flight_data = FlightData()
 
 #print(flight_data.aircraft_info('Boeing 707'))
 #flight_data.airport_info('LAX')
 
 #flight_data.departing_flights_airport('Germany', internal=True)
 
-flight_data.departing_flights_airport('JFK')
+#flight_data.departing_flights_airport('JFK')
 #TEEST
+
+flight_data = FlightData()
+
+flight_data.departing_flights_country('Italy', cutoff=1500)

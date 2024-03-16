@@ -18,6 +18,7 @@ from IPython.display import Markdown, display
 import seaborn as sns
 from pandasai import SmartDataframe
 from ast import literal_eval
+from typing import Union
 
 # Helper functions for plotting flight routes on maps
 
@@ -58,7 +59,7 @@ class FlightData:
 
 
     def __init__(self):
-        self.download_dir = "downloads"
+        self.download_dir = os.path.join("..", "downloads")
         self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
         self.data_files = {
             "airplanes": "airplanes.csv",
@@ -70,30 +71,32 @@ class FlightData:
         self.airports_df = None
         self.airlines_df = None
         self.routes_df = None
-        self.list_of_models = None
 
+        # Create the downloads directory if it doesn't exist
         if not os.path.exists(self.download_dir):
             os.makedirs(self.download_dir)
 
-        zip_file_path = os.path.join(self.download_dir, "flight_data.zip")
-        if not os.path.exists(zip_file_path):
-            url = self.data_url
-            response = requests.get(url)
-            if response.status_code == 200:
-                with open(zip_file_path, "wb") as file:
-                    file.write(response.content)
-                with ZipFile(zip_file_path, 'r') as zip_ref:
-                    zip_ref.extractall(self.download_dir)
-                os.remove(zip_file_path)
-                print("Data downloaded and extracted successfully.")
-            else:
-                print("Failed to download data.")
-        else:
-            print("Data already exists.")
+        # Check if all data files exist in the downloads directory
+        files_exist = all(os.path.exists(os.path.join(self.download_dir, file)) for file in self.data_files.values())
 
-        if not os.path.exists(self.download_dir):
-            print("Data directory does not exist. Please download the data first.")
-            return
+        if not files_exist:
+            zip_file_path = os.path.join(self.download_dir, "flight_data.zip")
+            if not os.path.exists(zip_file_path):
+                url = self.data_url
+                response = requests.get(url)
+                if response.status_code == 200:
+                    with open(zip_file_path, "wb") as file:
+                        file.write(response.content)
+                    with ZipFile(zip_file_path, 'r') as zip_ref:
+                        zip_ref.extractall(self.download_dir)
+                    os.remove(zip_file_path)
+                    print("Data downloaded and extracted successfully.")
+                else:
+                    print("Failed to download data.")
+            else:
+                print("Data already exists.")
+        else:
+            print("Data files already exist in the downloads directory.")
 
         self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airplanes"]), index_col=0)
         self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]), index_col=0)
@@ -101,7 +104,7 @@ class FlightData:
         self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
 
 
-    def plot_airports(self,country: str,std_dev_threshold:float=2) -> None:
+    def plot_airports(self, country: str, std_dev_threshold: float = 2) -> None:
         """
         Plot airports located in the specified country using Cartopy.
 
@@ -209,9 +212,9 @@ class FlightData:
         plt.show()
     
 
-    def departing_flights_airport(self, airport:str, internal:bool=False) -> None:
-            """
-            Retrieve and display information about flights from a given airport.
+    def departing_flights_airport(self, airport: str, internal: bool = False) -> None:
+        """
+        Retrieve and display information about departing flights from a given airport.
 
             Args:
                 airport (str): The IATA code of the airport for which departing flights will be retrieved.
@@ -311,7 +314,7 @@ class FlightData:
                     print(f"No internal flights.")
     
 
-    def airplane_models(self, countries: Union[str, list, None] = None, N: int =10) -> None:
+    def airplane_models(self, countries: Union[str, list, None] = None, N: int = 10) -> None:
         """
         Plot the N most used airplane models based on the number of routes.
 
@@ -373,7 +376,9 @@ class FlightData:
         plt.show()
 
     
-    def departing_flights_country(self, country: str, internal: bool=False, cutoff: float=1000.0) -> None: 
+    def departing_flights_country(self, country: str, internal: bool = False) -> None: 
+        """
+        Retrieve and display information about departing flights from airports in a given country.
 
         def plot_all_routes_colors(df, cutoff):
             """
@@ -500,8 +505,6 @@ class FlightData:
         else:
             print(f"No internal flights.")
 
-        
-
     def aircrafts(self) -> list:
             """
             This method returns the list of aircraft models available in the dataset.
@@ -550,18 +553,16 @@ class FlightData:
 
     
         
-    # lets define a class which takes the aircraft name and returns the information of the aircraft
+   # lets define a class which takes the aircraft name and returns the information of the aircraft
     def aircraft_info(self, aircraft_name:str) -> pd.DataFrame:
         """
         This method returns the information of a specific aircraft
         """
         aircraft_info = aircraft_name
+        df = pd.DataFrame(self.aircrafts())
 
-        if aircraft_name not in self.airplanes_df['Name'].values:
-            raise ValueError(f"""The aircraft {aircraft_info} is not in the database. Did you mean one of the following?
-                             {self.airplanes_df[self.airplanes_df['Name'].str.contains(aircraft_name)]}.
-                               If not, choose among the following: {self.airplanes_df['Name'].values}""")
-
+        if aircraft_name not in self.aircrafts():
+                raise ValueError(f"The aircraft {aircraft_name} is not in the database. Did you mean one of the following?\n{df[df[0].str.contains(aircraft_name)]}.\nIf not, choose among the following:\n {self.aircrafts()}")
 
         llm = ChatOpenAI(temperature=0.1)    
 
@@ -577,35 +578,10 @@ class FlightData:
                                 Production Status: Whether the aircraft is still in production.
                                 Variants: Different versions of the aircraft.
                                 Role: The primary role of the aircraft (e.g., commercial, military, cargo, etc.).""")
-        """
-        This method returns the information of a specific aircraft
-        """
-        aircraft_info = aircraft_name
-
-        if aircraft_name not in self.airplanes_df['Name'].values:
-                raise ValueError(f"""The aircraft {aircraft_info} is not in the database. Did you mean one of the following?
-                                 {self.airplanes_df[self.airplanes_df['Name'].str.contains(aircraft_name)]}.
-                                   If not, choose among the following: {self.airplanes_df['Name'].values}""")
-        
-
-        llm = ChatOpenAI(temperature=0.1)    
-
-        result = llm.invoke(f"""Please give me the following facts about this aircraft, PLEASE RETURN IT AS A PYTHON DICTIONARY WITHOUT NEWLINES. 
-                            I REPEAT - DO NOT INCLUDE \\n in the dictionary. I want to read it as a pandas dataframe later on: {aircraft_info}
-                                Aircraft Model: The model of the aircraft.
-                                Manufacturer: The company that manufactured the aircraft.
-                                Max Speed: The maximum speed of the aircraft.
-                                Range: The maximum distance the aircraft can fly without refueling.
-                                Passengers: The maximum number of passengers the aircraft can carry.
-                                Crew: The number of crew members required to operate the aircraft.
-                                First Flight: The date of the aircraft's first flight.
-                                Production Status: Whether the aircraft is still in production.
-                                Variants: Different versions of the aircraft.
-                                Role: The primary role of the aircraft (e.g., commercial, military, cargo, etc.).""")
-        
         res = literal_eval(result.content)
+
         df = pd.DataFrame([res])
-    
+
         return df
 
 
@@ -636,20 +612,17 @@ class FlightData:
         df = pd.DataFrame([res])
 
         return df
-    
-import os
-try:
-    os.environ['OPENAI_API_KEY']='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'
-except:
-    print('Error setting API key')
 
 from api import api
 api()
 
-#print(flight_data.aircraft_info('Boeing 707'))
-#flight_data.airport_info('LAX')
+#flight_data = FlightData()
+#flight_data.airplane_models(["Germany", "Norway", "Sweden"])
 
-#flight_data.departing_flights_airport('Germany', internal=True)
+#print(flight_data.aircraft_info('Boeing 707'))
+#print(flight_data.airport_info('LAX'))
+
+#flight_data.departing_flights_country('Germany', internal=True)
 
 #flight_data.departing_flights_airport('JFK')
 #TEEST

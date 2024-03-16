@@ -555,10 +555,10 @@ class FlightData:
 from api import api
 api()
 
-flight_data = FlightData()
+#flight_data = FlightData()
 #flight_data.airplane_models(["Germany", "Norway", "Sweden"])
 
-print(flight_data.aircraft_info('Boeing 707'))
+#print(flight_data.aircraft_info('Boeing 707'))
 #print(flight_data.airport_info('LAX'))
 
 #flight_data.departing_flights_country('Germany', internal=True)

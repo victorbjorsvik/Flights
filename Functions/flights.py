@@ -20,6 +20,7 @@ from pandasai import SmartDataframe
 from ast import literal_eval
 
 # Helper functions for plotting flight routes on maps
+'''
 def plot_route(source_airport, dest_airport, source_lat, source_lon, dest_lat, dest_lon, ax):
     """
     Plots a single flight route on the given axis.
@@ -71,6 +72,7 @@ def plot_all_routes(df):
 ###############################################################################################
 ################################# FlightData class ############################################
 ###############################################################################################
+'''
 
 class FlightData:
     """
@@ -256,65 +258,105 @@ class FlightData:
     
 
     def departing_flights_airport(self, airport, internal=False):
-        """
-        Retrieve and display information about departing flights from a given airport.
+            """
+            Retrieve and display information about flights from a given airport.
 
-        Args:
-            airport (str): The IATA code of the airport for which departing flights will be retrieved.
-            internal (bool, optional): If True, only internal flights (destination in the same country) will be displayed. Defaults to False.
+            Args:
+                airport (str): The IATA code of the airport for which departing flights will be retrieved.
+                internal (bool, optional): If True, only internal flights (destination in the same country) will be displayed. Defaults to False.
 
-        Returns:
-            None
+            Returns:
+                Plot showing all flight routes from the specified airport.
 
-        This method retrieves information about departing flights from a specified airport and displays it.
-        It joins the routes and airports DataFrames to obtain flight information.
-        It filters flights based on the given airport and optionally on whether they are internal.
-        If internal is True, only flights with the same source and destination country are displayed.
-        If there are no departing flights or no internal flights, appropriate messages are printed.
-        """
-        # Join on Source airport
-        airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
-        # Rename the column
-        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
-        airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
-        
-        
-        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
-        # Rename the column if needed
-        airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
-        # Drop the additional index columns
-        airport_info_2 = airport_info_2.reset_index(drop=True)
-        
-        # Filter flights based on the given source country
-        source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
-        source_flights = source_flights[~source_flights.duplicated()]
+            This method retrieves information about departing flights from a specified airport and displays it.
+            It joins the routes and airports DataFrames to obtain flight information.
+            It filters flights based on the given airport and optionally on whether they are internal.
+            If internal is True, only flights with the same source and destination country are displayed.
+            If there are no departing flights or no internal flights, appropriate messages are printed.
+            """
+            def plot_all_routes_colors(df):
+                '''
+                This function plots all flight routes from a given airport on a map.
+                
+                
+                Args:
+                    df (DataFrame): DataFrame containing flight route information.
 
-        del airport_info_1, airport_info_2
-        
-        # We only want to count each route 1 time - let's deal with this
-        # Create a new column 'Route' that represents the route in a direction-agnostic way
-        source_flights['Route'] = source_flights.apply(lambda x: '-'.join(sorted([x['Source airport'], x['Destination airport']])), axis=1)
+                Returns:
+                    Plot showing all flight routes from the specified airport.
+                '''
+                fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
 
-        # Drop duplicates based on the 'Route' column
-        source_flights = source_flights.drop_duplicates(subset=['Route'])
+                # Add geographical features
+                ax.add_feature(cfeature.LAND)
+                ax.add_feature(cfeature.COASTLINE)
+                ax.add_feature(cfeature.BORDERS, linestyle=':')
 
-        # Drop the 'Route' column if you don't need it anymore
-        source_flights = source_flights.drop('Route', axis=1)
+                    # Iterate over the rows in the DataFrame and plot each route
+                for _, row in df.iterrows():
+                    source_lat = row['Source_lat']
+                    source_lon = row['Source_lon']
+                    dest_lat = row['Dest_lat']
+                    dest_lon = row['Dest_lon']
 
-        if internal:
-            # Filter for internal flights (destination in the same country)
-            source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
+                    # Set marker style for all flights
+                    marker_style = 'o' if row['Source Country'] == row['Destination Country'] else '^'
 
-        # Check if there are any flights to display
-        if not source_flights.empty:
+                    # Using markers to denote airport points
+                    ax.plot([source_lon, dest_lon], [source_lat, dest_lat], linestyle='-', color='#41B6C4', linewidth=0.5, alpha=0.8, transform=ccrs.PlateCarree())
+                    ax.plot(source_lon, source_lat, marker_style, color= '#41B6C4', markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
+                    ax.plot(dest_lon, dest_lat, marker_style, color='#41B6C4', markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
+
+                plt.title(f'All Flight Routes From {airport}:')
+                plt.show()
+
+
+
+            # Join on Source airport
+            airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
+            # Rename the column
+            airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
+            airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
+            
+            
+            airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
+            # Rename the column if needed
+            airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
+            # Drop the additional index columns
+            airport_info_2 = airport_info_2.reset_index(drop=True)
+            
+            # Filter flights based on the given source country
+            source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
+            source_flights = source_flights[~source_flights.duplicated()]
+
+            del airport_info_1, airport_info_2
+            
+            # We only want to count each route 1 time - let's deal with this
+            # Create a new column 'Route' that represents the route in a direction-agnostic way
+            source_flights['Route'] = source_flights.apply(lambda x: '-'.join(sorted([x['Source airport'], x['Destination airport']])), axis=1)
+
+            # Drop duplicates based on the 'Route' column
+            source_flights = source_flights.drop_duplicates(subset=['Route'])
+
+            # Drop the 'Route' column if you don't need it anymore
+            source_flights = source_flights.drop('Route', axis=1)
+
+            # Get coordinates for source and destination airports
             if internal:
-                print(f"Internal flights from {airport} to destinations in the same country:")
-            else:
-                print(f"All flights from {airport}:")
+                # Filter for internal flights (destination in the same country)
+                source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
 
-            plot_all_routes(source_flights)
-        else:
-                print(f"No internal flights.")
+            # Check if there are any flights to display
+            if not source_flights.empty:
+                if internal:
+                    print(f"Internal flights from {airport} to destinations in the same country:")
+                else:
+                    print(f"All flights from {airport}:")
+
+                plot_all_routes_colors(source_flights)
+
+            else:
+                    print(f"No internal flights.")
     
 
     def airplane_models(self, countries = None, N =10):
@@ -588,7 +630,7 @@ flight_data = FlightData()
 #print(flight_data.aircraft_info('Boeing 707'))
 #flight_data.airport_info('LAX')
 
-flight_data.departing_flights_country('Germany', internal=True)
+#flight_data.departing_flights_airport('Germany', internal=True)
 
-#flight_data.departing_flights_airport('JFK')
+flight_data.departing_flights_airport('JFK')
 #TEEST

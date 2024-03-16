@@ -6,8 +6,8 @@ import os
 import pandas as pd
 import requests
 from zipfile import ZipFile
-from typing import List, Dict, Union
-from pydantic import BaseModel
+from typing import List, Dict, Union, Optional
+from pydantic import BaseModel, Field
 from distances import haversine_distance, Coordinates
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
@@ -17,7 +17,6 @@ import langchain
 from IPython.display import Markdown, display
 import seaborn as sns
 from ast import literal_eval
-from typing import Union
 
 ###############################################################################################
 ################################# FlightData class ############################################
@@ -89,11 +88,24 @@ class FlightData:
     >>> print(df)
     """
 
+    class Config:
+        arbitrary_types_allowed = True
 
-    def __init__(self):
-        self.download_dir = os.path.join("..", "downloads")
-        self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
-        self.data_files = {
+    airplanes_df: Optional[pd.DataFrame] = None
+    airports_df: Optional[pd.DataFrame] = None
+    airlines_df: Optional[pd.DataFrame] = None
+    routes_df: Optional[pd.DataFrame] = None
+    list_of_models: List[str] = []
+    distances: Optional[pd.DataFrame] = None
+
+
+
+    def __init__(self, **data):
+        super().__init__(**data)      
+        
+        download_dir = os.path.join("..", "downloads")
+        data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
+        data_files = {
             "airplanes": "airplanes.csv",
             "airports": "airports.csv",
             "airlines": "airlines.csv",
@@ -105,22 +117,22 @@ class FlightData:
         self.routes_df = None
 
         # Create the downloads directory if it doesn't exist
-        if not os.path.exists(self.download_dir):
-            os.makedirs(self.download_dir)
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
 
         # Check if all data files exist in the downloads directory
-        files_exist = all(os.path.exists(os.path.join(self.download_dir, file)) for file in self.data_files.values())
+        files_exist = all(os.path.exists(os.path.join(download_dir, file)) for file in data_files.values())
 
         if not files_exist:
-            zip_file_path = os.path.join(self.download_dir, "flight_data.zip")
+            zip_file_path = os.path.join(download_dir, "flight_data.zip")
             if not os.path.exists(zip_file_path):
-                url = self.data_url
+                url = data_url
                 response = requests.get(url)
                 if response.status_code == 200:
                     with open(zip_file_path, "wb") as file:
                         file.write(response.content)
                     with ZipFile(zip_file_path, 'r') as zip_ref:
-                        zip_ref.extractall(self.download_dir)
+                        zip_ref.extractall(download_dir)
                     os.remove(zip_file_path)
                     print("Data downloaded and extracted successfully.")
                 else:
@@ -130,10 +142,36 @@ class FlightData:
         else:
             print("Data files already exist in the downloads directory.")
 
-        self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airplanes"]), index_col=0)
-        self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]), index_col=0)
-        self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]), index_col=0)
-        self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
+        self.airplanes_df = pd.read_csv(os.path.join(download_dir, data_files["airplanes"]), index_col=0)
+        self.airports_df = pd.read_csv(os.path.join(download_dir, data_files["airports"]), index_col=0)
+        self.airlines_df = pd.read_csv(os.path.join(download_dir, data_files["airlines"]), index_col=0)
+        self.routes_df = pd.read_csv(os.path.join(download_dir, data_files["routes"]), index_col=0)
+
+        self.airport_distances()
+
+    def airport_distances(self) -> None:
+        """
+        This method calculates the distances between all airports in the dataset and stores them in a DataFrame.
+        """
+        airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
+        # Rename the column
+        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
+        airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
+        # Join on Destination airport
+        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
+        # Rename the column if needed
+        airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
+        # Drop the additional index columns
+        airport_info_2 = airport_info_2.reset_index(drop=True)
+        # Drop the additional index columns
+
+        # Create Coordinates instances for each row
+        source_coords = airport_info_2.apply(lambda row: Coordinates(lat=row['Source_lat'], lon=row['Source_lon']), axis=1)
+        dest_coords = airport_info_2.apply(lambda row: Coordinates(lat=row['Dest_lat'], lon=row['Dest_lon']), axis=1)
+        # Calculate distances for each flight
+        airport_info_2['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
+
+        self.distances = airport_info_2
 
 
     def plot_airports(self, country: str, std_dev_threshold: float = 2) -> None:
@@ -182,7 +220,6 @@ class FlightData:
         Cartopy: For creating maps and plotting geographical data.
         """
         # Filter airports for the given country
-        self.country = country
         airports_country = self.airports_df[self.airports_df['Country'] == country]
     
         
@@ -267,24 +304,7 @@ class FlightData:
             If the required DataFrames (routes_df or airports_df) are not present
             or improperly formatted in the class instance.
         """
-        airport_info_3 = self.routes_df.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']], on='Source airport')
-        # Rename the column
-        airport_info_3.rename(columns={'Latitude': 'Source Latitude'}, inplace=True)
-        airport_info_3.rename(columns={'Longitude': 'Source Longitude'}, inplace=True)
-        # Join on Destination airport
-        airport_info_4= airport_info_3.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']],  on='Destination airport', rsuffix='_dest')
-        # Rename the column
-        airport_info_4.rename(columns={'Latitude': 'Destination Latitude'}, inplace=True)
-        airport_info_4.rename(columns={'Longitude': 'Destination Longitude'}, inplace=True)
-        # Drop the additional index columns
-        airport_info_4 = airport_info_4.reset_index(drop=True)
-        # Final DataFrame for function
-        airport_distances = airport_info_4[['Source airport', 'Source Latitude','Source Longitude' , 'Destination airport', 'Destination Latitude',  'Destination Longitude']]
-        # Create Coordinates instances for each row
-        source_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Source Latitude'], lon=row['Source Longitude']), axis=1)
-        dest_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Destination Latitude'], lon=row['Destination Longitude']), axis=1)
-        # Calculate distances for each flight
-        airport_distances['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
+        airport_distances = self.distances
 
         # Plot the distribution of flight distances
         plt.figure(figsize=(10, 6))
@@ -389,26 +409,13 @@ class FlightData:
             plt.title(f'All Flight Routes From {airport}:')
             plt.show()
 
-
-
-        # Join on Source airport
-        airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
-        # Rename the column
-        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
-        airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
-        
-        
-        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
-        # Rename the column if needed
-        airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
-        # Drop the additional index columns
-        airport_info_2 = airport_info_2.reset_index(drop=True)
+        airport_info_2 = self.distances
         
         # Filter flights based on the given source country
         source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
         source_flights = source_flights[~source_flights.duplicated()]
 
-        del airport_info_1, airport_info_2
+        del airport_info_2
         
         # We only want to count each route 1 time - let's deal with this
         # Create a new column 'Route' that represents the route in a direction-agnostic way
@@ -615,23 +622,13 @@ class FlightData:
             plt.title('Flight Routes')
             plt.show()
 
-        # Join on Source airport
-        airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
-        # Rename the column
-        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
-        airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
-        
-        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
-        # Rename the column if needed
-        airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
-        # Drop the additional index columns
-        airport_info_2 = airport_info_2.reset_index(drop=True)
+        airport_info_2 = self.distances
         
         # Filter flights based on the given source country
         source_flights_all = airport_info_2[airport_info_2['Source Country'] == country]
         source_flights = source_flights_all[~source_flights_all.duplicated()]
 
-        del airport_info_1, airport_info_2
+        del airport_info_2
 
         # We only want to count each route 1 time - let's deal with this
         # Create a new column 'Route' that represents the route in a direction-agnostic way
@@ -874,17 +871,4 @@ class FlightData:
         df = pd.DataFrame([res])
 
         return df
-
-from api import api
-api()
-
-flight_data = FlightData()
-#flight_data.plot_airports('Germany')
-#flight_data.distance_analysis()
-#flight_data.departing_flights_airport('JFK')
-#flight_data.airplane_models(["Germany"])
-#flight_data.departing_flights_country('Germany', internal=True)
-#print(flight_data.aircrafts())
-#print(flight_data.aircraft_info('Boeing 707'))
-#print(flight_data.airport_info('LAX'))
 

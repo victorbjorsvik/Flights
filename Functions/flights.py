@@ -150,8 +150,37 @@ class FlightData:
         self.airport_distances()
 
     def airport_distances(self) -> None:
-        """
-        This method calculates the distances between all airports in the dataset and stores them in a DataFrame.
+        """ 
+        Calculate and store the distances between all pairs of source and destination airports present in the dataset.
+
+        This method processes the routes and airport data to calculate the great-circle distances between each pair of source 
+        and destination airports using the Haversine formula. The calculated distances are stored in a new 'Distance' column 
+        within a DataFrame that includes both the original route information and the corresponding source and destination 
+        airport details (country, latitude, and longitude). This enhanced DataFrame is then stored as an attribute of the 
+        FlightData class for further analysis or reference.
+
+        Returns
+        -------
+        None
+            Does not return a value but updates the distances attribute of the class instance with a DataFrame containing 
+            the distances between airports for each route in the dataset.
+
+        Notes
+        -----
+        The method relies on the availability of accurate latitude and longitude information for each airport in the airports_df
+        DataFrame and route information in the routes_df DataFrame. It assumes that these DataFrames are already loaded into 
+        the FlightData class instance and correctly formatted.
+
+        Examples
+        --------
+        Assuming flight_data is an instance of the FlightData class with properly loaded and formatted airports_df and routes_df:
+
+        >>> flight_data.airport_distances()
+        This invocation will calculate the distances for all routes and update the flight_data.distances attribute with the results.
+
+        See Also
+        --------
+        haversine_distance : The function used for calculating the great-circle distances between two points on the Earth's surface.
         """
         airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
         # Rename the column
@@ -264,45 +293,40 @@ class FlightData:
 
     def distance_analysis(self) -> None:
         """
-        Analyze and plot the distribution of flight distances for all flights in the dataset.
+        Analyze and visualize the distribution of flight distances across all routes in the dataset.
 
-        This method joins the route data with airport geographic locations to calculate
-        the great-circle distances between source and destination airports for each flight.
-        It then plots the distribution of these distances.
+        This method utilizes pre-calculated distances stored in the distances attribute, which should contain
+        the great-circle distances between source and destination airports for each route. It generates a histogram
+        to visualize the distribution of these distances, providing insights into the frequency of various flight lengths
+        within the dataset.
 
-        No parameters are required as the method operates on the instance's attributes,
-        specifically routes_df and airports_df, which are be pandas DataFrames
-        containing the routes and airport information, respectively.
+        The calculation of distances, assumed to have been done prior to this method's invocation, uses the Haversine
+        formula to estimate the shortest path over the Earth's surface between two points.
 
         Returns
         -------
         None
-            This method does not return a value but displays a histogram plot of the
-            flight distances distribution.
+            Does not return any value. A histogram plot of the flight distances distribution is displayed.
 
         Notes
         -----
-        The calculation of distances is performed using the Haversine formula, facilitated
-        by the haversine_distance function. This approach assumes a spherical Earth model
-        to estimate the shortest path over the Earth's surface between two points.
+        - The method assumes that the distances DataFrame is already populated with the necessary distance calculations 
+        between airports.
+        - The Haversine formula is used to calculate these distances, assuming a spherical model of the Earth.
+        - This visualization can help in understanding the range and distribution of flight distances within the dataset,
+        including identifying common flight lengths and outliers.
 
         Examples
         --------
-        Assuming flight_data is an instance of a class containing this method and
-        the necessary DataFrame attributes (routes_df and airports_df):
+        Assuming flight_data is an instance of the class containing this method, with distances pre-populated:
 
         >>> flight_data.distance_analysis()
-        The output will be a plot displaying the frequency distribution of flight distances.
-
-        See Also
-        --------
-        haversine_distance : Function used to calculate the great-circle distances.
+        This will display a histogram plot showing the distribution of flight distances across all routes in the dataset.
 
         Raises
         ------
         AttributeError
-            If the required DataFrames (routes_df or airports_df) are not present
-            or improperly formatted in the class instance.
+            If the distances attribute is not present or improperly formatted within the class instance.
         """
         airport_distances = self.distances
 
@@ -317,53 +341,49 @@ class FlightData:
 
     def departing_flights_airport(self, airport: str, internal: bool = False) -> None:
         """
-        Retrieve and visualize departing flights from a specified airport, optionally filtering for internal flights.
+        Retrieve and visualize departing flights from a specified airport, with an option to filter for internal flights.
 
-        This method identifies and displays departing flights from a given airport. It leverages the routes_df and 
-        airports_df DataFrames to extract and join relevant flight and airport information. The method offers an option 
-        to filter the visualization to show only internal flights (i.e., flights where the destination airport is within 
-        the same country as the departure airport). A plot is generated to visually represent the flight routes using 
-        Cartopy, differentiating between internal and international flights based on marker styles.
+        This method leverages the pre-calculated distances between airports stored in the distances attribute of the class 
+        to identify and display departing flights from a given airport. It provides an option to filter the visualization to 
+        show only internal flights (flights where the destination airport is within the same country as the departure airport). 
+        Flight routes are visualized using Cartopy, with different marker styles to distinguish between internal and 
+        international flights.
 
         Parameters
         ----------
         airport : str
             The IATA code of the airport from which departing flights are to be visualized.
         internal : bool, optional
-            If True, the visualization will be limited to internal flights only. Defaults to False.
+            If True, limits the visualization to internal flights only. Defaults to False.
 
         Returns
         -------
         None
-            This method does not return any value. It generates a plot visualizing the departing flights 
-            from the specified airport.
+            Generates a plot visualizing the departing flights from the specified airport. This method does not return a value.
 
         Notes
         -----
-        - The visualization distinguishes between internal and international flights using different marker styles.
-        - Requires the presence of routes_df and airports_df within the class, containing routes and airports 
-        information respectively.
-        - The method filters out duplicate routes to ensure each flight route is displayed uniquely.
-        - Cartopy is used for creating the map and plotting flight routes. Ensure Cartopy and its dependencies are 
-        installed and properly configured before invoking this method.
+        - The visualization differentiates between internal and international flights using distinct marker styles.
+        - This method relies on the distances DataFrame, which should already be populated with the distances between all pairs of 
+        airports in the dataset. It is assumed that this DataFrame includes information about the source and destination airports, 
+        their countries, latitudes, longitudes, and the calculated distances.
+        - Cartopy is utilized for map rendering. Ensure Cartopy and its dependencies are installed and properly configured.
 
         Examples
         --------
-        Assuming that flight_data is an instance of a class containing this method along with the necessary DataFrame 
-        attributes (routes_df and airports_df):
+        Assuming flight_data is an instance of the class containing this method:
 
         >>> flight_data.departing_flights_airport('JFK', internal=False)
-        This will visualize all departing flights from JFK Airport, including both internal and international flights.
+        This will visualize all departing flights from JFK Airport, showing both internal and international flights.
 
         >>> flight_data.departing_flights_airport('JFK', internal=True)
-        This will visualize only the internal departing flights from JFK Airport.
+        This will only visualize internal departing flights from JFK Airport.
 
         Raises
         ------
         ValueError
-            If the specified airport code does not exist in the airports_df DataFrame.
-        """
-        
+            If the specified airport code does not exist in the provided datasets.
+        """       
         
         def plot_all_routes_colors(df):
             '''
@@ -521,42 +541,41 @@ class FlightData:
     
     def departing_flights_country(self, country: str, internal: bool = False, cutoff: float = 1000.0) -> None: 
         """
-        Retrieve and display information about departing flights from airports within a specified country,
-        optionally filtered by flight distance.
+        Analyzes and visualizes departing flights from all airports within a specified country, with an option to filter by flight distance.
 
-        This method analyzes flights departing from all airports within the given country, visualizes these
-        flights on a map, and applies a distance cutoff to differentiate short-haul and long-haul flights. 
-        It calculates and displays the potential emissions savings if short-haul flights were replaced by 
-        rail services.
+        This method leverages the distances DataFrame to identify flights departing from the specified country and visualizes them on a map. It includes options to filter these flights to internal flights only and to differentiate flights based on a specified distance cutoff, categorizing them as short-haul or long-haul. The visualization highlights short-haul flights in green and long-haul flights in orange. Additionally, the method estimates potential emissions savings if short-haul flights were replaced by rail services, based on the distances of these flights.
 
         Parameters
         ----------
         country : str
-            The name of the country from which the departing flights are to be analyzed.
+            The name of the country from which the departing flights are analyzed.
         internal : bool, optional
-            If True, only flights departing to destinations within the same country are considered. Defaults to False.
+            If set to True, filters the analysis to include only internal flights, i.e., flights to destinations within the same country. Defaults to False.
         cutoff : float, optional
             The distance in kilometers used to differentiate between short-haul and long-haul flights. Defaults to 1000.0 km.
 
         Returns
         -------
         None
-            Visualizes the flights on a map and prints the potential emissions savings. Does not return any value.
+            Generates a map visualization of the flight routes departing from the specified country and prints potential emissions savings. This method does not return a value.
 
         Notes
         -----
-        The method uses the Haversine formula to calculate the distance between airports. It visualizes the flight
-        routes using Cartopy, marking short-haul flights in green and long-haul flights in orange. 
+        - The visualization uses Cartopy to render the flight routes on a map, distinguishing between short-haul and long-haul flights with different colors and markers.
+        - This method assumes that the distances DataFrame is already populated with the necessary distance calculations between airports.
+        - Potential emissions savings are calculated based on the assumption that replacing short-haul flights with rail services can significantly reduce carbon emissions.
 
         Raises
         ------
         ImportError
-            If required libraries (Cartopy, Pandas, or Matplotlib) are not installed.
+            If the required libraries (Cartopy, Pandas, or Matplotlib) are not installed.
 
         Examples
         --------
+        Assuming flight_data is an instance of the class with the necessary data loaded:
+
         >>> flight_data.departing_flights_country('Italy', internal=True, cutoff=1500)
-        This will plot all internal flights from Italy, highlight short-haul flights, and print emissions savings.
+        This invocation will plot all internal flights within Italy, differentiate short-haul flights, and display potential emissions savings.
         """
         def plot_all_routes_colors(df, cutoff):
             """

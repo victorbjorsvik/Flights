@@ -12,67 +12,19 @@ from distances import haversine_distance, Coordinates
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-#from langchain_openai import OpenAI, ChatOpenAI
-#import langchain
+from langchain_openai import OpenAI, ChatOpenAI
+import langchain
 from IPython.display import Markdown, display
 import seaborn as sns
-#from pandasai import SmartDataframe
+from pandasai import SmartDataframe
 from ast import literal_eval
 
 # Helper functions for plotting flight routes on maps
-'''
-def plot_route(source_airport, dest_airport, source_lat, source_lon, dest_lat, dest_lon, ax):
-    """
-    Plots a single flight route on the given axis.
-    """
-    # Plot the flight route
-    ax.plot([source_lon, dest_lon], [source_lat, dest_lat], 'ro-', transform=ccrs.PlateCarree())
-    
-    # Add airport markers
-    ax.plot(source_lon, source_lat, 'bo', markersize=8, transform=ccrs.PlateCarree())
-    ax.plot(dest_lon, dest_lat, 'bo', markersize=8, transform=ccrs.PlateCarree())
-    
-    # Add airport labels
-    #ax.text(source_lon + 0.5, source_lat + 0.5, source_airport, transform=ccrs.PlateCarree())
-    #ax.text(dest_lon + 0.5, dest_lat + 0.5, dest_airport, transform=ccrs.PlateCarree())
-    
-def plot_all_routes(df):
-    """
-    Plots all flight routes from the given DataFrame on a map.
-    """
-    fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
-
-    # Add geographical features
-    ax.add_feature(cfeature.LAND)
-    ax.add_feature(cfeature.COASTLINE)
-    ax.add_feature(cfeature.BORDERS, linestyle=':')
-
-    # Iterate over the rows in the DataFrame and plot each route
-    for _, row in df.iterrows():
-        source_airport = row['Source airport']
-        dest_airport = row['Destination airport']
-        source_lat = row['Source_lat']
-        source_lon = row['Source_lon']
-        dest_lat = row['Dest_lat']
-        dest_lon = row['Dest_lon']
-
-        plot_route(source_airport, dest_airport, source_lat, source_lon, dest_lat, dest_lon, ax)
-
-    # Set the map extent to fit all routes
-    max_lon = max(df['Source_lon'].max(), df['Dest_lon'].max())
-    min_lon = min(df['Source_lon'].min(), df['Dest_lon'].min())
-    max_lat = max(df['Source_lat'].max(), df['Dest_lat'].max())
-    min_lat = min(df['Source_lat'].min(), df['Dest_lat'].min())
-    ax.set_extent([min_lon - 5, max_lon + 5, min_lat - 5, max_lat + 5], crs=ccrs.PlateCarree())
-
-    plt.title('All Flight Routes')
-    plt.show()
-
 
 ###############################################################################################
 ################################# FlightData class ############################################
 ###############################################################################################
-'''
+
 
 class FlightData:
     """
@@ -149,7 +101,7 @@ class FlightData:
         self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
 
 
-    def plot_airports(self,country,std_dev_threshold=2):
+    def plot_airports(self,country: str,std_dev_threshold:float=2) -> None:
         """
         Plot airports located in the specified country using Cartopy.
 
@@ -204,7 +156,7 @@ class FlightData:
 
         # Create a plot with Cartopy
         fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
-        ax.add_feature(cfeature.LAND)
+        ax.add_feature(cfeature.LAND, facecolor='lightgray')
         ax.add_feature(cfeature.COASTLINE)
         ax.add_feature(cfeature.BORDERS, linestyle=':')
 
@@ -222,7 +174,7 @@ class FlightData:
         plt.show()
 
 
-    def distance_analysis(self):
+    def distance_analysis(self) -> None:
         """
         Plot the distribution of flight distances for all flights.
 
@@ -257,7 +209,7 @@ class FlightData:
         plt.show()
     
 
-    def departing_flights_airport(self, airport, internal=False):
+    def departing_flights_airport(self, airport:str, internal:bool=False) -> None:
             """
             Retrieve and display information about flights from a given airport.
 
@@ -288,7 +240,7 @@ class FlightData:
                 fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
 
                 # Add geographical features
-                ax.add_feature(cfeature.LAND)
+                ax.add_feature(cfeature.LAND, facecolor='lightgray')
                 ax.add_feature(cfeature.COASTLINE)
                 ax.add_feature(cfeature.BORDERS, linestyle=':')
 
@@ -359,7 +311,7 @@ class FlightData:
                     print(f"No internal flights.")
     
 
-    def airplane_models(self, countries = None, N =10):
+    def airplane_models(self, countries: Union[str, list, None] = None, N: int =10) -> None:
         """
         Plot the N most used airplane models based on the number of routes.
 
@@ -421,7 +373,7 @@ class FlightData:
         plt.show()
 
     
-    def departing_flights_country(self, country, internal=False, cutoff=1000.0): 
+    def departing_flights_country(self, country: str, internal: bool=False, cutoff: float=1000.0) -> None: 
 
         def plot_all_routes_colors(df, cutoff):
             """
@@ -550,7 +502,7 @@ class FlightData:
 
         
 
-    def aircrafts(self):
+    def aircrafts(self) -> list:
             """
             This method returns the list of aircraft models available in the dataset.
             
@@ -599,7 +551,7 @@ class FlightData:
     
         
     # lets define a class which takes the aircraft name and returns the information of the aircraft
-    def aircraft_info(self, aircraft_name:str):
+    def aircraft_info(self, aircraft_name:str) -> pd.DataFrame:
         """
         This method returns the information of a specific aircraft
         """
@@ -658,7 +610,7 @@ class FlightData:
 
 
     
-    def airport_info(self, airport:str):
+    def airport_info(self, airport:str) -> pd.DataFrame:
         """
         This method returns the information of a specific airport
         """
@@ -691,7 +643,8 @@ try:
 except:
     print('Error setting API key')
 
-
+from api import api
+api()
 
 #print(flight_data.aircraft_info('Boeing 707'))
 #flight_data.airport_info('LAX')
@@ -703,4 +656,4 @@ except:
 
 flight_data = FlightData()
 
-flight_data.departing_flights_country('Italy', cutoff=1500)
+print(flight_data.aircraft_info('Embraer 195'))

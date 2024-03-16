@@ -18,6 +18,7 @@ from IPython.display import Markdown, display
 import seaborn as sns
 from pandasai import SmartDataframe
 from ast import literal_eval
+from typing import Union
 
 # Helper functions for plotting flight routes on maps
 def plot_route(source_airport, dest_airport, source_lat, source_lon, dest_lat, dest_lon, ax):
@@ -149,7 +150,7 @@ class FlightData:
         self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
 
 
-    def plot_airports(self,country,std_dev_threshold=2):
+    def plot_airports(self, country: str, std_dev_threshold: float = 2) -> None:
         """
         Plot airports located in the specified country using Cartopy.
 
@@ -222,7 +223,7 @@ class FlightData:
         plt.show()
 
 
-    def distance_analysis(self):
+    def distance_analysis(self) -> None:
         """
         Plot the distribution of flight distances for all flights.
 
@@ -257,7 +258,7 @@ class FlightData:
         plt.show()
     
 
-    def departing_flights_airport(self, airport, internal=False):
+    def departing_flights_airport(self, airport: str, internal: bool = False) -> None:
         """
         Retrieve and display information about departing flights from a given airport.
 
@@ -319,7 +320,7 @@ class FlightData:
                 print(f"No internal flights.")
     
 
-    def airplane_models(self, countries = None, N =10):
+    def airplane_models(self, countries: Union[str, list, None] = None, N: int = 10) -> None:
         """
         Plot the N most used airplane models based on the number of routes.
 
@@ -381,7 +382,7 @@ class FlightData:
         plt.show()
 
     
-    def departing_flights_country(self, country, internal=False): 
+    def departing_flights_country(self, country: str, internal: bool = False) -> None: 
         """
         Retrieve and display information about departing flights from airports in a given country.
 
@@ -443,7 +444,7 @@ class FlightData:
         else:
             print(f"No internal flights.")
 
-    def aircrafts(self):
+    def aircrafts(self) -> list:
             """
             This method returns the list of aircraft models available in the dataset.
             
@@ -492,7 +493,7 @@ class FlightData:
     
         
    # lets define a class which takes the aircraft name and returns the information of the aircraft
-    def aircraft_info(self, aircraft_name:str):
+    def aircraft_info(self, aircraft_name:str) -> pd.DataFrame:
         """
         This method returns the information of a specific aircraft
         """
@@ -500,9 +501,7 @@ class FlightData:
         df = pd.DataFrame(self.aircrafts())
 
         if aircraft_name not in self.aircrafts():
-                raise ValueError(f"""The aircraft {aircraft_info} is not in the database. Did you mean one of the following?
-                                                #  {df[df[0].str.contains(aircraft_name)]}.
-                                                     If not, choose among the following: {self.aircrafts()}""")
+                raise ValueError(f"The aircraft {aircraft_name} is not in the database. Did you mean one of the following?\n{df[df[0].str.contains(aircraft_name)]}.\nIf not, choose among the following:\n {self.aircrafts()}")
 
         llm = ChatOpenAI(temperature=0.1)    
 
@@ -526,7 +525,7 @@ class FlightData:
 
 
     
-    def airport_info(self, airport:str):
+    def airport_info(self, airport:str) -> pd.DataFrame:
         """
         This method returns the information of a specific airport
         """
@@ -552,20 +551,17 @@ class FlightData:
         df = pd.DataFrame([res])
 
         return df
-    
-import os
-try:
-    os.environ['OPENAI_API_KEY']='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'
-except:
-    print('Error setting API key')
 
+from api import api
+api()
 
 flight_data = FlightData()
+#flight_data.airplane_models(["Germany", "Norway", "Sweden"])
 
-#print(flight_data.aircraft_info('Boeing 707'))
-#flight_data.airport_info('LAX')
+print(flight_data.aircraft_info('Boeing 707'))
+#print(flight_data.airport_info('LAX'))
 
-flight_data.departing_flights_country('Germany', internal=True)
+#flight_data.departing_flights_country('Germany', internal=True)
 
 #flight_data.departing_flights_airport('JFK')
 #TEEST

@@ -104,7 +104,7 @@ class FlightData:
 
 
     def __init__(self):
-        self.download_dir = "downloads"
+        self.download_dir = "./downloads"
         self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
         self.data_files = {
             "airplanes": "airplanes.csv",
@@ -117,33 +117,40 @@ class FlightData:
         self.airlines_df = None
         self.routes_df = None
 
+        # Create the downloads directory if it doesn't exist
         if not os.path.exists(self.download_dir):
             os.makedirs(self.download_dir)
 
-        zip_file_path = os.path.join(self.download_dir, "flight_data.zip")
-        if not os.path.exists(zip_file_path):
-            url = self.data_url
-            response = requests.get(url)
-            if response.status_code == 200:
-                with open(zip_file_path, "wb") as file:
-                    file.write(response.content)
-                with ZipFile(zip_file_path, 'r') as zip_ref:
-                    zip_ref.extractall(self.download_dir)
-                os.remove(zip_file_path)
-                print("Data downloaded and extracted successfully.")
+        # Check if all data files exist in the downloads directory
+        files_exist = all(os.path.exists(os.path.join(self.download_dir, file)) for file in self.data_files.values())
+
+        if not files_exist:
+            zip_file_path = os.path.join(self.download_dir, "flight_data.zip")
+            if not os.path.exists(zip_file_path):
+                url = self.data_url
+                response = requests.get(url)
+                if response.status_code == 200:
+                    with open(zip_file_path, "wb") as file:
+                        file.write(response.content)
+                    with ZipFile(zip_file_path, 'r') as zip_ref:
+                        zip_ref.extractall(self.download_dir)
+                    os.remove(zip_file_path)
+                    print("Data downloaded and extracted successfully.")
+                else:
+                    print("Failed to download data.")
             else:
-                print("Failed to download data.")
+                print("Data already exists.")
         else:
-            print("Data already exists.")
+            print("Data files already exist in the downloads directory.")
 
-        if not os.path.exists(self.download_dir):
+        # Load the data files into DataFrames
+        if os.path.exists(self.download_dir):
+            self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airplanes"]), index_col=0)
+            self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]), index_col=0)
+            self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]), index_col=0)
+            self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
+        else:
             print("Data directory does not exist. Please download the data first.")
-            return
-
-        self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airplanes"]), index_col=0)
-        self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]), index_col=0)
-        self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]), index_col=0)
-        self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
 
 
     def plot_airports(self,country,std_dev_threshold=2):
@@ -453,11 +460,13 @@ class FlightData:
         """
         This method returns the information of a specific aircraft
         """
+        aircraft_info = aircraft_name
 
         if aircraft_name not in self.airplanes_df['Name'].values:
-                raise ValueError(f"""The aircraft {aircraft_name} is not in the database.
-                                Choose among the following options: {self.airplanes_df['Name']}""")
-        aircraft_info = aircraft_name
+                raise ValueError(f"""The aircraft {aircraft_info} is not in the database. Did you mean one of the following?
+                                 {self.airplanes_df[self.airplanes_df['Name'].str.contains(aircraft_name)]}.
+                                   If not, choose among the following: {self.airplanes_df['Name'].values}""")
+        
 
         llm = ChatOpenAI(temperature=0.1)    
 
@@ -515,12 +524,12 @@ except:
     print('Error setting API key')
 
 
-#flight_data = FlightData()
+flight_data = FlightData()
 
-#print(flight_data.aircraft_info('Boeing 737-300'))
+#print(flight_data.aircraft_info('Boeing 707'))
 #flight_data.airport_info('LAX')
 
-#flight_data.departing_flights_country('Germany')
+flight_data.departing_flights_country('Germany')
 
 #flight_data.departing_flights_airport('JFK')
 #TEEST

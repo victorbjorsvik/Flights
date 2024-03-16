@@ -495,37 +495,12 @@ class FlightData:
         This method returns the information of a specific aircraft
         """
         aircraft_info = aircraft_name
+        df = pd.DataFrame(self.aircrafts())
 
-        if aircraft_name not in self.airplanes_df['Name'].values:
-            raise ValueError(f"""The aircraft {aircraft_info} is not in the database. Did you mean one of the following?
-                             {self.airplanes_df[self.airplanes_df['Name'].str.contains(aircraft_name)]}.
-                               If not, choose among the following: {self.airplanes_df['Name'].values}""")
-
-
-        llm = ChatOpenAI(temperature=0.1)    
-
-        result = llm.invoke(f"""Please give me the following facts about this aircraft, PLEASE RETURN IT AS A PYTHON DICTIONARY WITHOUT NEWLINES. 
-                            I REPEAT - DO NOT INCLUDE \\n in the dictionary. I want to read it as a pandas dataframe later on: {aircraft_info}
-                                Aircraft Model: The model of the aircraft.
-                                Manufacturer: The company that manufactured the aircraft.
-                                Max Speed: The maximum speed of the aircraft.
-                                Range: The maximum distance the aircraft can fly without refueling.
-                                Passengers: The maximum number of passengers the aircraft can carry.
-                                Crew: The number of crew members required to operate the aircraft.
-                                First Flight: The date of the aircraft's first flight.
-                                Production Status: Whether the aircraft is still in production.
-                                Variants: Different versions of the aircraft.
-                                Role: The primary role of the aircraft (e.g., commercial, military, cargo, etc.).""")
-        """
-        This method returns the information of a specific aircraft
-        """
-        aircraft_info = aircraft_name
-
-        if aircraft_name not in self.airplanes_df['Name'].values:
+        if aircraft_name not in self.aircrafts():
                 raise ValueError(f"""The aircraft {aircraft_info} is not in the database. Did you mean one of the following?
-                                 {self.airplanes_df[self.airplanes_df['Name'].str.contains(aircraft_name)]}.
-                                   If not, choose among the following: {self.airplanes_df['Name'].values}""")
-        
+                                                #  {df[df[0].str.contains(aircraft_name)]}.
+                                                     If not, choose among the following: {self.aircrafts()}""")
 
         llm = ChatOpenAI(temperature=0.1)    
 
@@ -541,12 +516,11 @@ class FlightData:
                                 Production Status: Whether the aircraft is still in production.
                                 Variants: Different versions of the aircraft.
                                 Role: The primary role of the aircraft (e.g., commercial, military, cargo, etc.).""")
-        
         res = literal_eval(result.content)
-        df = pd.DataFrame([res])
-    
-        return df
 
+        df = pd.DataFrame([res])
+
+        return df
 
     
     def airport_info(self, airport:str):
@@ -585,10 +559,10 @@ except:
 
 flight_data = FlightData()
 
-#print(flight_data.aircraft_info('Boeing 707'))
+print(flight_data.aircraft_info('Boeing'))
 #flight_data.airport_info('LAX')
 
-flight_data.departing_flights_country('Germany', internal=True)
+#.departing_flights_country('Germany', internal=True)
 
 #flight_data.departing_flights_airport('JFK')
 #TEEST

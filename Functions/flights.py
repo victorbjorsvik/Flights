@@ -46,6 +46,12 @@ class FlightData:
 
 
     def __init__(self):
+        """
+        Initializes the FlightData class.
+
+        Downloads and extracts the flight data if it does not exist.
+        Loads the airplane, airport, airline, and route data into DataFrames.
+        """
         self.download_dir = "downloads"
         self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
         self.data_files = {
@@ -115,53 +121,8 @@ class FlightData:
         If no airports are found for the specified country, a message is printed
         and the method returns without generating a plot.
         """
-      
+        # Code for plotting airports
 
-        # Filter airports for the given country
-        self.country = country
-        airports_country = self.airports_df[self.airports_df['Country'] == country]
-    
-        
-        # Check if any airports exist for the given country
-        if airports_country.empty:
-            print(f"No airports found for {self.country}")
-            return 
-        
-        # Calculate median and standard deviation for latitude and longitude
-        median_lat = airports_country['Latitude'].median()
-        median_lon = airports_country['Longitude'].median()
-        std_lat = airports_country['Latitude'].std()
-        std_lon = airports_country['Longitude'].std()
-
-        # Filter out airports that are far from the median location
-        airports_filtered = airports_country[
-        (airports_country['Latitude'] < median_lat + std_dev_threshold * std_lat) &
-        (airports_country['Latitude'] > median_lat - std_dev_threshold * std_lat) &
-        (airports_country['Longitude'] < median_lon + std_dev_threshold * std_lon) &
-        (airports_country['Longitude'] > median_lon - std_dev_threshold * std_lon)
-        ]
-
-        # Create a plot with Cartopy
-        fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
-        ax.add_feature(cfeature.LAND)
-        ax.add_feature(cfeature.COASTLINE)
-        ax.add_feature(cfeature.BORDERS, linestyle=':')
-
-        # Set extent to the filtered airports' boundaries
-        ax.set_extent([
-            airports_filtered['Longitude'].min()-1, airports_filtered['Longitude'].max()+1,
-            airports_filtered['Latitude'].min()-1, airports_filtered['Latitude'].max()+1
-        ], crs=ccrs.PlateCarree())
-
-        # Plot airports
-        plt.scatter(airports_filtered['Longitude'], airports_filtered['Latitude'], 
-                    c='blue', s=10, alpha=0.5, transform=ccrs.PlateCarree())
-
-        ax.set_title(f'Airports in {country}')
-        plt.show()
-
-
-    
 
     def distance_analysis(self):
         """
@@ -170,33 +131,8 @@ class FlightData:
         Args:
             df (pd.DataFrame): DataFrame containing flight information.
         """
-        airport_info_3 = self.routes_df.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']], on='Source airport')
-        # Rename the column
-        airport_info_3.rename(columns={'Latitude': 'Source Latitude'}, inplace=True)
-        airport_info_3.rename(columns={'Longitude': 'Source Longitude'}, inplace=True)
-        # Join on Destination airport
-        airport_info_4= airport_info_3.join(self.airports_df.set_index('IATA')[['Latitude', 'Longitude']],  on='Destination airport', rsuffix='_dest')
-        # Rename the column
-        airport_info_4.rename(columns={'Latitude': 'Destination Latitude'}, inplace=True)
-        airport_info_4.rename(columns={'Longitude': 'Destination Longitude'}, inplace=True)
-        # Drop the additional index columns
-        airport_info_4 = airport_info_4.reset_index(drop=True)
-        # Final DataFrame for function
-        airport_distances = airport_info_4[['Source airport', 'Source Latitude','Source Longitude' , 'Destination airport', 'Destination Latitude',  'Destination Longitude']]
-        # Create Coordinates instances for each row
-        source_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Source Latitude'], lon=row['Source Longitude']), axis=1)
-        dest_coords = airport_distances.apply(lambda row: Coordinates(lat=row['Destination Latitude'], lon=row['Destination Longitude']), axis=1)
-        # Calculate distances for each flight
-        airport_distances['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
+        # Code for distance analysis
 
-        # Plot the distribution of flight distances
-        plt.figure(figsize=(10, 6))
-        plt.hist(airport_distances['Distance'], bins=20, edgecolor='black')
-        plt.title("Distribution of Flight Distances")
-        plt.xlabel("Distance (km)")
-        plt.ylabel("Frequency")
-        plt.show()
-    
 
     def departing_flights_airport(self, airport, internal=False):
         """
@@ -208,6 +144,7 @@ class FlightData:
 
         Returns:
             None
+        
 
         This method retrieves information about departing flights from a specified airport and displays it.
         It joins the routes and airports DataFrames to obtain flight information.
@@ -215,18 +152,38 @@ class FlightData:
         If internal is True, only flights with the same source and destination country are displayed.
         If there are no departing flights or no internal flights, appropriate messages are printed.
         """
-        # Join on Source airport
-        airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
-        # Rename the column
-        airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
-        
-        #print(airport_info_1)
-        
-        # Join on Destination airport
-        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
-        # Rename the column if needed
-        airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
-        # Drop the additional index columns
+        # Code for retrieving and displaying departing flights
+
+
+    def airplane_models(self):
+        """
+        Retrieve and display information about airplane models.
+
+        Returns:
+            None
+
+        This method retrieves information about airplane models from the airplane DataFrame and displays it.
+        If there are no airplane models, a message is printed.
+        """
+        # Code for retrieving and displaying airplane models
+
+
+    def departing_flights_country(self, country):
+        """
+        Retrieve and display information about departing flights from a given country.
+
+        Args:
+            country (str): The name of the country for which departing flights will be retrieved.
+
+        Returns:
+            None
+
+        This method retrieves information about departing flights from a specified country and displays it.
+        It joins the routes and airports DataFrames to obtain flight information.
+        It filters flights based on the given country.
+        If there are no departing flights, a message is printed.
+        """
+        # Code for retrieving and displaying departing flights from a country
         airport_info_2 = airport_info_2.reset_index(drop=True)
 
         #print(airport_info_2)

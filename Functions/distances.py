@@ -44,3 +44,7 @@ def haversine_distance(coord1: Coordinates, coord2: Coordinates) -> float:
     # Distance in km
     distance = radius_earth_km * c
     return np.round(distance, 4)
+
+
+
+

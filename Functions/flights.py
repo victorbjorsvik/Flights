@@ -16,11 +16,8 @@ from langchain_openai import OpenAI, ChatOpenAI
 import langchain
 from IPython.display import Markdown, display
 import seaborn as sns
-from pandasai import SmartDataframe
 from ast import literal_eval
 from typing import Union
-
-# Helper functions for plotting flight routes on maps
 
 ###############################################################################################
 ################################# FlightData class ############################################
@@ -229,90 +226,90 @@ class FlightData:
             If internal is True, only flights with the same source and destination country are displayed.
             If there are no departing flights or no internal flights, appropriate messages are printed.
             """
-            def plot_all_routes_colors(df):
-                '''
-                This function plots all flight routes from a given airport on a map.
-                
-                
-                Args:
-                    df (DataFrame): DataFrame containing flight route information.
-
-                Returns:
-                    Plot showing all flight routes from the specified airport.
-                '''
-                fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
-
-                # Add geographical features
-                ax.add_feature(cfeature.LAND, facecolor='lightgray')
-                ax.add_feature(cfeature.COASTLINE)
-                ax.add_feature(cfeature.BORDERS, linestyle=':')
-
-                    # Iterate over the rows in the DataFrame and plot each route
-                for _, row in df.iterrows():
-                    source_lat = row['Source_lat']
-                    source_lon = row['Source_lon']
-                    dest_lat = row['Dest_lat']
-                    dest_lon = row['Dest_lon']
-
-                    # Set marker style for all flights
-                    marker_style = 'o' if row['Source Country'] == row['Destination Country'] else '^'
-
-                    # Using markers to denote airport points
-                    ax.plot([source_lon, dest_lon], [source_lat, dest_lat], linestyle='-', color='#41B6C4', linewidth=0.5, alpha=0.8, transform=ccrs.PlateCarree())
-                    ax.plot(source_lon, source_lat, marker_style, color= '#41B6C4', markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
-                    ax.plot(dest_lon, dest_lat, marker_style, color='#41B6C4', markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
-
-                plt.title(f'All Flight Routes From {airport}:')
-                plt.show()
-
-
-
-            # Join on Source airport
-            airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
-            # Rename the column
-            airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
-            airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
+        def plot_all_routes_colors(df):
+            '''
+            This function plots all flight routes from a given airport on a map.
             
             
-            airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
-            # Rename the column if needed
-            airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
-            # Drop the additional index columns
-            airport_info_2 = airport_info_2.reset_index(drop=True)
-            
-            # Filter flights based on the given source country
-            source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
-            source_flights = source_flights[~source_flights.duplicated()]
+            Args:
+                df (DataFrame): DataFrame containing flight route information.
 
-            del airport_info_1, airport_info_2
-            
-            # We only want to count each route 1 time - let's deal with this
-            # Create a new column 'Route' that represents the route in a direction-agnostic way
-            source_flights['Route'] = source_flights.apply(lambda x: '-'.join(sorted([x['Source airport'], x['Destination airport']])), axis=1)
+            Returns:
+                Plot showing all flight routes from the specified airport.
+            '''
+            fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
 
-            # Drop duplicates based on the 'Route' column
-            source_flights = source_flights.drop_duplicates(subset=['Route'])
+            # Add geographical features
+            ax.add_feature(cfeature.LAND, facecolor='lightgray')
+            ax.add_feature(cfeature.COASTLINE)
+            ax.add_feature(cfeature.BORDERS, linestyle=':')
 
-            # Drop the 'Route' column if you don't need it anymore
-            source_flights = source_flights.drop('Route', axis=1)
+                # Iterate over the rows in the DataFrame and plot each route
+            for _, row in df.iterrows():
+                source_lat = row['Source_lat']
+                source_lon = row['Source_lon']
+                dest_lat = row['Dest_lat']
+                dest_lon = row['Dest_lon']
 
-            # Get coordinates for source and destination airports
+                # Set marker style for all flights
+                marker_style = 'o' if row['Source Country'] == row['Destination Country'] else '^'
+
+                # Using markers to denote airport points
+                ax.plot([source_lon, dest_lon], [source_lat, dest_lat], linestyle='-', color='#41B6C4', linewidth=0.5, alpha=0.8, transform=ccrs.PlateCarree())
+                ax.plot(source_lon, source_lat, marker_style, color= '#41B6C4', markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
+                ax.plot(dest_lon, dest_lat, marker_style, color='#41B6C4', markersize=5, alpha=0.8, transform=ccrs.PlateCarree())
+
+            plt.title(f'All Flight Routes From {airport}:')
+            plt.show()
+
+
+
+        # Join on Source airport
+        airport_info_1 = self.routes_df[['Source airport', 'Destination airport']].join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport')
+        # Rename the column
+        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude':'Source_lat', 'Longitude': 'Source_lon'}, inplace=True)
+        airport_info_1[["Source Country", "Source_lat", "Source_lon", "Source airport", "Destination airport"]]
+        
+        
+        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport')
+        # Rename the column if needed
+        airport_info_2.rename(columns={'Country': 'Destination Country','Latitude':'Dest_lat', 'Longitude': 'Dest_lon'}, inplace=True)
+        # Drop the additional index columns
+        airport_info_2 = airport_info_2.reset_index(drop=True)
+        
+        # Filter flights based on the given source country
+        source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
+        source_flights = source_flights[~source_flights.duplicated()]
+
+        del airport_info_1, airport_info_2
+        
+        # We only want to count each route 1 time - let's deal with this
+        # Create a new column 'Route' that represents the route in a direction-agnostic way
+        source_flights['Route'] = source_flights.apply(lambda x: '-'.join(sorted([x['Source airport'], x['Destination airport']])), axis=1)
+
+        # Drop duplicates based on the 'Route' column
+        source_flights = source_flights.drop_duplicates(subset=['Route'])
+
+        # Drop the 'Route' column if you don't need it anymore
+        source_flights = source_flights.drop('Route', axis=1)
+
+        # Get coordinates for source and destination airports
+        if internal:
+            # Filter for internal flights (destination in the same country)
+            source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
+
+        # Check if there are any flights to display
+        if not source_flights.empty:
             if internal:
-                # Filter for internal flights (destination in the same country)
-                source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
-
-            # Check if there are any flights to display
-            if not source_flights.empty:
-                if internal:
-                    print(f"Internal flights from {airport} to destinations in the same country:")
-                else:
-                    print(f"All flights from {airport}:")
-
-                plot_all_routes_colors(source_flights)
-
+                print(f"Internal flights from {airport} to destinations in the same country:")
             else:
-                    print(f"No internal flights.")
-    
+                print(f"All flights from {airport}:")
+
+            plot_all_routes_colors(source_flights)
+
+        else:
+                print(f"No internal flights.")
+
 
     def airplane_models(self, countries: Union[str, list, None] = None, N: int = 10) -> None:
         """
@@ -376,10 +373,10 @@ class FlightData:
         plt.show()
 
     
-    def departing_flights_country(self, country: str, internal: bool = False) -> None: 
+    def departing_flights_country(self, country: str, internal: bool = False, cutoff: float = 1000.0) -> None: 
         """
         Retrieve and display information about departing flights from airports in a given country.
-
+        """
         def plot_all_routes_colors(df, cutoff):
             """
             Plots all flight routes from the given DataFrame on a map.
@@ -470,7 +467,7 @@ class FlightData:
         dest_coords = source_flights.apply(lambda row: Coordinates(lat=row['Dest_lat'], lon=row['Dest_lon']), axis=1)
         # Calculate distances for each flight
         source_flights['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
-        short_haul = source_flights[source_flights['Distance']< cutoff]
+        short_haul = source_flights[source_flights['Distance'] < cutoff]
         total_distances = short_haul['Distance'].sum()
 
         #Find the distances for our source_flights all dataframe
@@ -606,7 +603,6 @@ class FlightData:
                                 History: Any significant historical or cultural information about the airport.
                                 Services: Additional services available at the airport, such as ground transportation, dining options, duty-free shopping, etc.
                                 Safety Records: Information about the airport's safety and security measures, including any notable incidents or accidents.""")
-
         res = literal_eval(result.content)
 
         df = pd.DataFrame([res])
@@ -616,17 +612,19 @@ class FlightData:
 from api import api
 api()
 
-#flight_data = FlightData()
-#flight_data.airplane_models(["Germany", "Norway", "Sweden"])
+flight_data = FlightData()
 
+#flight_data.plot_airports('Germany')
+#flight_data.distance_analysis()
+#flight_data.departing_flights_airport('JFK')
+#flight_data.airplane_models(["Germany"])
+#flight_data.departing_flights_country('Germany', internal=True)
+#print(flight_data.aircrafts())
 #print(flight_data.aircraft_info('Boeing 707'))
 #print(flight_data.airport_info('LAX'))
 
 #flight_data.departing_flights_country('Germany', internal=True)
 
-#flight_data.departing_flights_airport('JFK')
 #TEEST
 
-flight_data = FlightData()
-
-print(flight_data.aircraft_info('Embraer 195'))
+#print(flight_data.aircraft_info('Embraer 195'))

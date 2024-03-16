@@ -104,7 +104,7 @@ class FlightData:
 
 
     def __init__(self):
-        self.download_dir = "./downloads"
+        self.download_dir = "downloads"
         self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
         self.data_files = {
             "airplanes": "airplanes.csv",
@@ -117,40 +117,33 @@ class FlightData:
         self.airlines_df = None
         self.routes_df = None
 
-        # Create the downloads directory if it doesn't exist
         if not os.path.exists(self.download_dir):
             os.makedirs(self.download_dir)
 
-        # Check if all data files exist in the downloads directory
-        files_exist = all(os.path.exists(os.path.join(self.download_dir, file)) for file in self.data_files.values())
-
-        if not files_exist:
-            zip_file_path = os.path.join(self.download_dir, "flight_data.zip")
-            if not os.path.exists(zip_file_path):
-                url = self.data_url
-                response = requests.get(url)
-                if response.status_code == 200:
-                    with open(zip_file_path, "wb") as file:
-                        file.write(response.content)
-                    with ZipFile(zip_file_path, 'r') as zip_ref:
-                        zip_ref.extractall(self.download_dir)
-                    os.remove(zip_file_path)
-                    print("Data downloaded and extracted successfully.")
-                else:
-                    print("Failed to download data.")
+        zip_file_path = os.path.join(self.download_dir, "flight_data.zip")
+        if not os.path.exists(zip_file_path):
+            url = self.data_url
+            response = requests.get(url)
+            if response.status_code == 200:
+                with open(zip_file_path, "wb") as file:
+                    file.write(response.content)
+                with ZipFile(zip_file_path, 'r') as zip_ref:
+                    zip_ref.extractall(self.download_dir)
+                os.remove(zip_file_path)
+                print("Data downloaded and extracted successfully.")
             else:
-                print("Data already exists.")
+                print("Failed to download data.")
         else:
-            print("Data files already exist in the downloads directory.")
+            print("Data already exists.")
 
-        # Load the data files into DataFrames
-        if os.path.exists(self.download_dir):
-            self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airplanes"]), index_col=0)
-            self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]), index_col=0)
-            self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]), index_col=0)
-            self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
-        else:
+        if not os.path.exists(self.download_dir):
             print("Data directory does not exist. Please download the data first.")
+            return
+
+        self.airplanes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airplanes"]), index_col=0)
+        self.airports_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airports"]), index_col=0)
+        self.airlines_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["airlines"]), index_col=0)
+        self.routes_df = pd.read_csv(os.path.join(self.download_dir, self.data_files["routes"]), index_col=0)
 
 
     def plot_airports(self,country,std_dev_threshold=2):
@@ -529,7 +522,7 @@ flight_data = FlightData()
 #print(flight_data.aircraft_info('Boeing 707'))
 #flight_data.airport_info('LAX')
 
-flight_data.departing_flights_country('Germany')
+flight_data.departing_flights_country('Germany', internal=True)
 
 #flight_data.departing_flights_airport('JFK')
 #TEEST

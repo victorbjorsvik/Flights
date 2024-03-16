@@ -116,6 +116,7 @@ class FlightData:
         self.airports_df = None
         self.airlines_df = None
         self.routes_df = None
+        self.list_of_models = None
 
         # Create the downloads directory if it doesn't exist
         if not os.path.exists(self.download_dir):
@@ -448,15 +449,80 @@ class FlightData:
             print(f"No internal flights.")
 
     def aircrafts(self):
-        """
-        This method returns the aircrafts dataframe
-        """
-        # TODO
-        return None
+            """
+            This method returns the list of aircraft models available in the dataset.
+            
+            It modifies the list of models by replacing certain model names with their standardized versions,
+            and extends the list with additional models that in the dataframe are in the same rows. Finally, it returns the modified list of models.
+            
+            Returns:
+                list: The list of aircraft models.
+            """
+            self.list_of_models = self.airplanes_df['Name'].unique().tolist()
+
+            self.list_of_models[self.list_of_models == "Beechcraft Baron / 55 Baron"] = "Beechcraft Baron 55"
+            self.list_of_models[self.list_of_models ==  'Gulfstream/Rockwell (Aero) Commander'] = "Gulfstream Commander"
+            self.list_of_models[self.list_of_models ==  'Gulfstream/Rockwell (Aero) Commander'] = "Gulfstream/Rockwell (Aero) Turbo Commander"
+
+            self.list_of_models[self.list_of_models ==  'British Aerospace 125 series / Hawker/Raytheon 700/800/800XP/850/900'] = "British Aerospace 125 Hawker 700"
+            ba_models = ['British Aerospace 125 Hawker 800',
+                        'British Aerospace 125 Hawker 800XP',
+                        'British Aerospace 125 Hawker 850',
+                        'British Aerospace 125 Hawker 900',
+                        'British Aerospace 125 Hawker 1000']
+            self.list_of_models.extend(ba_models)
+
+
+            self.list_of_models[self.list_of_models ==  'De Havilland Canada DHC-8-100 Dash 8 / 8Q'] = "De Havilland Canada DHC-8-100 Dash 8"
+            dash_models = ['De Havilland Canada DHC-8-100 Dash 8Q',
+                        'De Havilland Canada DHC-8-200 Dash 8',
+                        'De Havilland Canada DHC-8-200 Dash 8Q']
+            self.list_of_models.extend(dash_models)
+
+
+            self.list_of_models[self.list_of_models ==  'Lockheed L-182 / 282 / 382 (L-100) Hercules'] = "Lockheed L-182"
+            lockheed = ['Lockheed L-282',
+                        'Lockheed L-382 / L-100 Hercules']
+            self.list_of_models.extend(lockheed)
+
+            self.list_of_models[self.list_of_models ==  'Saab SF340A/B'] = "Saab SF340A"
+            saab = ['Saab SF340B']  
+            self.list_of_models.extend(saab)
+
+            self.list_of_models[self.list_of_models ==  'Pilatus Britten-Norman BN-2A/B Islander'] = "Pilatus Britten-Norman BN-2A Islander"
+            pilatus = ['Pilatus Britten-Norman BN-2B Islander']
+            self.list_of_models.extend(pilatus)
+            return (self.list_of_models)
+
     
         
     # lets define a class which takes the aircraft name and returns the information of the aircraft
     def aircraft_info(self, aircraft_name:str):
+        """
+        This method returns the information of a specific aircraft
+        """
+        aircraft_info = aircraft_name
+
+        if aircraft_name not in self.airplanes_df['Name'].values:
+            raise ValueError(f"""The aircraft {aircraft_info} is not in the database. Did you mean one of the following?
+                             {self.airplanes_df[self.airplanes_df['Name'].str.contains(aircraft_name)]}.
+                               If not, choose among the following: {self.airplanes_df['Name'].values}""")
+
+
+        llm = ChatOpenAI(temperature=0.1)    
+
+        result = llm.invoke(f"""Please give me the following facts about this aircraft, PLEASE RETURN IT AS A PYTHON DICTIONARY WITHOUT NEWLINES. 
+                            I REPEAT - DO NOT INCLUDE \\n in the dictionary. I want to read it as a pandas dataframe later on: {aircraft_info}
+                                Aircraft Model: The model of the aircraft.
+                                Manufacturer: The company that manufactured the aircraft.
+                                Max Speed: The maximum speed of the aircraft.
+                                Range: The maximum distance the aircraft can fly without refueling.
+                                Passengers: The maximum number of passengers the aircraft can carry.
+                                Crew: The number of crew members required to operate the aircraft.
+                                First Flight: The date of the aircraft's first flight.
+                                Production Status: Whether the aircraft is still in production.
+                                Variants: Different versions of the aircraft.
+                                Role: The primary role of the aircraft (e.g., commercial, military, cargo, etc.).""")
         """
         This method returns the information of a specific aircraft
         """

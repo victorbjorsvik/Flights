@@ -25,32 +25,67 @@ from ast import literal_eval
 
 class FlightData:
     """
-    This class examines a dataset on international flight and airports
+    A class for examining and analyzing international flight and airport data.
 
+    This class provides methods for analyzing flight routes, aircraft models, and airports using
+    data from various CSV files. It enables visualization of airport locations, analysis of flight distances,
+    and retrieval of detailed information about specific aircraft models and airports.
 
-    Attributes:
-    --------------
-    airplanes_df: pandas.DataFrame
-        DataFrame containing information about several airplane models
-    airports_df: pandas.DataFrame
-        Dataframe containing information about several international airports
-    airlines_df: pandas.DataFrame
-        DataFrame containing information about several international airlines
-    routes_df: pandas.DataFrame
-        DataFrame containing information about several domestic and international flights
+    Attributes
+    ----------
+    airplanes_df : pandas.DataFrame
+        DataFrame containing information about several airplane models.
+    airports_df : pandas.DataFrame
+        DataFrame containing information about several international airports.
+    airlines_df : pandas.DataFrame
+        DataFrame containing information about several international airlines.
+    routes_df : pandas.DataFrame
+        DataFrame containing information about several domestic and international flights.
+    download_dir : str
+        The directory path where the data files are downloaded and extracted.
+    data_url : str
+        The URL to download the dataset zip file.
+    data_files : dict
+        A dictionary mapping data file types to their file names.
 
-    Methods:
-    --------------
-    plot_airports:
-        blablala
-    distance_analysis:
-        blablabla
-    departing_flights_airports:
-        blablabla
-    airplane_models:
-        blablabla
-    departing_flights_country:
-        blablabla
+    Methods
+    -------
+    plot_airports(country: str, std_dev_threshold: float = 2)
+        Visualizes airports in a specified country on a map, filtering based on a standard deviation threshold.
+    distance_analysis()
+        Analyzes and plots the distribution of flight distances for all flights.
+    departing_flights_airport(airport: str, internal: bool = False)
+        Displays information about departing flights from a specified airport, with an option to filter for internal flights.
+    airplane_models(countries: Union[str, list, None] = None, N: int = 10)
+        Identifies and plots the most frequently used airplane models globally or for specific countries.
+    departing_flights_country(country: str, internal: bool = False, cutoff: float = 1000.0)
+        Analyzes and visualizes departing flights from a given country, with options for internal flights and distance cutoffs.
+    aircrafts()
+        Returns a modified list of aircraft models available in the dataset.
+    aircraft_info(aircraft_name: str)
+        Retrieves detailed information about a specified aircraft and presents it as a DataFrame.
+    airport_info(airport: str)
+        Retrieves detailed information about a specified airport and presents it as a DataFrame.
+
+    See Also
+    --------
+    pandas.DataFrame : The fundamental structure for storing and managing data.
+
+    Notes
+    -----
+    This class is part of a project aimed at advancing sustainability in commercial airflight through data analysis.
+    It leverages the pandas library for data manipulation and visualization techniques to explore various aspects
+    of flight data, including airport locations, flight distances, and detailed information on aircraft and airports.
+
+    Examples
+    --------
+    To use this class to analyze flight data:
+
+    >>> flight_data = FlightData()
+    >>> flight_data.plot_airports('Germany')
+    >>> print(flight_data.aircrafts())
+    >>> df = flight_data.aircraft_info('Boeing 747')
+    >>> print(df)
     """
 
     class Config:
@@ -141,33 +176,49 @@ class FlightData:
 
     def plot_airports(self, country: str, std_dev_threshold: float = 2) -> None:
         """
-        Plot airports located in the specified country using Cartopy.
+        Plot airports located within a specified country, filtering outliers based on standard deviation thresholds.
 
-        This method filters the airports based on the specified country and
-        plots them on a map. Airports are further filtered to remove outliers
-        based on standard deviation thresholds for latitude and longitude.
-        
-        Parameters:
-        --------------
+        This method filters the airport data for a specified country and visualizes the locations on a map using Cartopy.
+        It applies a filtering criterion to exclude airports that fall outside a specified number of standard deviations
+        from the median latitude and longitude, effectively removing outlier locations to provide a cleaner visualization.
+
+        Parameters
+        ----------
         country : str
             The name of the country for which airports are to be plotted.
-        std_dev_threshold : int, optional
-            The number of standard deviations from the median latitude and
-            longitude to consider when filtering out outlier airports. The default
-            is 2, which means airports falling outside of two standard deviations
-            from the median latitude or longitude are filtered out.
+        std_dev_threshold : float, optional
+            The threshold in terms of the number of standard deviations from the median latitude and longitude.
+            Airports falling outside this range are considered outliers and are not plotted. The default value is 2.
 
-        Returns:
-        --------------
+        Returns
+        -------
         None
+            This method does not return any value but produces a matplotlib plot displaying the airports.
 
-        Outputs a matplotlib plot showing the filtered airports on a map.
-        
-        If no airports are found for the specified country, a message is printed
-        and the method returns without generating a plot.
+        Notes
+        -----
+        Requires matplotlib and Cartopy for plotting. Make sure these libraries are installed and correctly set up
+        before calling this method. The method filters out outlier airports based on the standard deviation threshold
+        to focus the visualization on the most relevant areas.
+
+        Examples
+        --------
+        Assuming flight_analysis is an instance of a class containing this method and the necessary airport data:
+
+        >>> flight_analysis.plot_airports('Germany', std_dev_threshold=2)
+        This will plot the airports in Germany, excluding those that are more than two standard deviations
+        from the median latitude or longitude.
+
+        Raises
+        ------
+        ValueError
+            If no airports are found in the specified country, or if the provided country parameter is not
+            a valid country name within the airports data.
+
+        See Also
+        --------
+        Cartopy: For creating maps and plotting geographical data.
         """
-      
-
         # Filter airports for the given country
         airports_country = self.airports_df[self.airports_df['Country'] == country]
     
@@ -213,10 +264,45 @@ class FlightData:
 
     def distance_analysis(self) -> None:
         """
-        Plot the distribution of flight distances for all flights.
+        Analyze and plot the distribution of flight distances for all flights in the dataset.
 
-        Args:
-            df (pd.DataFrame): DataFrame containing flight information.
+        This method joins the route data with airport geographic locations to calculate
+        the great-circle distances between source and destination airports for each flight.
+        It then plots the distribution of these distances.
+
+        No parameters are required as the method operates on the instance's attributes,
+        specifically routes_df and airports_df, which are be pandas DataFrames
+        containing the routes and airport information, respectively.
+
+        Returns
+        -------
+        None
+            This method does not return a value but displays a histogram plot of the
+            flight distances distribution.
+
+        Notes
+        -----
+        The calculation of distances is performed using the Haversine formula, facilitated
+        by the haversine_distance function. This approach assumes a spherical Earth model
+        to estimate the shortest path over the Earth's surface between two points.
+
+        Examples
+        --------
+        Assuming flight_data is an instance of a class containing this method and
+        the necessary DataFrame attributes (routes_df and airports_df):
+
+        >>> flight_data.distance_analysis()
+        The output will be a plot displaying the frequency distribution of flight distances.
+
+        See Also
+        --------
+        haversine_distance : Function used to calculate the great-circle distances.
+
+        Raises
+        ------
+        AttributeError
+            If the required DataFrames (routes_df or airports_df) are not present
+            or improperly formatted in the class instance.
         """
         airport_distances = self.distances
 
@@ -231,31 +317,72 @@ class FlightData:
 
     def departing_flights_airport(self, airport: str, internal: bool = False) -> None:
         """
-        Retrieve and display information about departing flights from a given airport.
+        Retrieve and visualize departing flights from a specified airport, optionally filtering for internal flights.
 
-            Args:
-                airport (str): The IATA code of the airport for which departing flights will be retrieved.
-                internal (bool, optional): If True, only internal flights (destination in the same country) will be displayed. Defaults to False.
+        This method identifies and displays departing flights from a given airport. It leverages the routes_df and 
+        airports_df DataFrames to extract and join relevant flight and airport information. The method offers an option 
+        to filter the visualization to show only internal flights (i.e., flights where the destination airport is within 
+        the same country as the departure airport). A plot is generated to visually represent the flight routes using 
+        Cartopy, differentiating between internal and international flights based on marker styles.
 
-            Returns:
-                Plot showing all flight routes from the specified airport.
+        Parameters
+        ----------
+        airport : str
+            The IATA code of the airport from which departing flights are to be visualized.
+        internal : bool, optional
+            If True, the visualization will be limited to internal flights only. Defaults to False.
 
-            This method retrieves information about departing flights from a specified airport and displays it.
-            It joins the routes and airports DataFrames to obtain flight information.
-            It filters flights based on the given airport and optionally on whether they are internal.
-            If internal is True, only flights with the same source and destination country are displayed.
-            If there are no departing flights or no internal flights, appropriate messages are printed.
-            """
+        Returns
+        -------
+        None
+            This method does not return any value. It generates a plot visualizing the departing flights 
+            from the specified airport.
+
+        Notes
+        -----
+        - The visualization distinguishes between internal and international flights using different marker styles.
+        - Requires the presence of routes_df and airports_df within the class, containing routes and airports 
+        information respectively.
+        - The method filters out duplicate routes to ensure each flight route is displayed uniquely.
+        - Cartopy is used for creating the map and plotting flight routes. Ensure Cartopy and its dependencies are 
+        installed and properly configured before invoking this method.
+
+        Examples
+        --------
+        Assuming that flight_data is an instance of a class containing this method along with the necessary DataFrame 
+        attributes (routes_df and airports_df):
+
+        >>> flight_data.departing_flights_airport('JFK', internal=False)
+        This will visualize all departing flights from JFK Airport, including both internal and international flights.
+
+        >>> flight_data.departing_flights_airport('JFK', internal=True)
+        This will visualize only the internal departing flights from JFK Airport.
+
+        Raises
+        ------
+        ValueError
+            If the specified airport code does not exist in the airports_df DataFrame.
+        """
+        
+        
         def plot_all_routes_colors(df):
             '''
-            This function plots all flight routes from a given airport on a map.
-            
-            
-            Args:
-                df (DataFrame): DataFrame containing flight route information.
+            Helper function to plot all flight routes for the given DataFrame.
 
-            Returns:
-                Plot showing all flight routes from the specified airport.
+            Parameters
+            ----------
+            df : pandas.DataFrame
+                A DataFrame containing flight route information including latitude and longitude for 
+                source and destination airports.
+
+            Returns
+            -------
+            None
+                Generates a matplotlib plot showing all flight routes from the specified airport, 
+                differentiating flights with markers.
+
+            This function is nested within departing_flights_airport and is intended for internal use only to 
+            create the visual representation of flight routes.
             '''
             fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': ccrs.PlateCarree()})
 
@@ -320,37 +447,49 @@ class FlightData:
 
     def airplane_models(self, countries: Union[str, list, None] = None, N: int = 10) -> None:
         """
-        Plot the N most used airplane models based on the number of routes.
+        Identify and visualize the top N most frequently used airplane models based on flight route data.
 
-        This method aggregates flight route data to identify the most commonly used
-        airplane models either worldwide or for a specific country or list of countries.
-        It then plots the top N airplane models based on their frequency of appearance
-        in the routes data.
+        This method aggregates flight data to determine the most commonly used airplane models, either globally
+        or within specified countries. It then generates a bar plot showcasing the top N airplane models by their
+        frequency of use.
 
-        Parameters:
-        --------------
+        Parameters
+        ----------
         countries : None, str, or list of str, optional
-            A country name or list of country names for which the analysis is to be
-            performed. If None (the default), the analysis will include routes worldwide.
+            Specifies the country or countries for which the analysis is to be conducted. If None (default),
+            the analysis encompasses routes worldwide.
         N : int, optional
-            The number of top airplane models to display in the plot. The default is 10.
+            The number of top airplane models to be displayed in the visualization. Defaults to 10.
 
-        Returns:
-        --------------
+        Returns
+        -------
         None
+            This method does not return a value. It displays a bar plot of the top N most used airplane models.
 
-        Displays:
-        --------------
-        A bar plot visualizing the top N most used airplane models based on the
-        number of routes. The plot title changes dynamically to reflect whether the
-        analysis is global or specific to one or more countries.
+        Notes
+        -----
+        The analysis merges flight route data with airplane model information using the 'Equipment' field from
+        the routes data, which corresponds to the 'IATA code' in the airplane data. The accuracy and
+        comprehensiveness of this merged data are crucial for the reliability of the analysis.
 
-        Note:
-        --------------
-        Airplane model names are obtained by merging the routes data with airplane
-        information based on the 'Equipment' column, which should match the 'IATA code'
-        in the airplanes data. The analysis is dependent on the accuracy and completeness
-        of the merged data.
+        The method dynamically adjusts the plot title to indicate whether the analysis is global or focused on
+        specific countries. If countries are specified, the plot title reflects this by including the names of
+        the countries in the analysis.
+
+        Examples
+        --------
+        Assuming flight_data is an instance of a class containing this method along with necessary data attributes:
+
+        >>> flight_data.airplane_models()
+        This will display a bar plot for the top 10 most used airplane models worldwide.
+
+        >>> flight_data.airplane_models('France', N=5)
+        This will display a bar plot for the top 5 most used airplane models for routes associated with France.
+
+        Raises
+        ------
+        ValueError
+            If the specified country or countries do not match any entries in the routes or airports data.
         """
             
         # Ensure IDs are of the same type for successful merging
@@ -382,20 +521,62 @@ class FlightData:
     
     def departing_flights_country(self, country: str, internal: bool = False, cutoff: float = 1000.0) -> None: 
         """
-        Retrieve and display information about departing flights from airports in a given country.
+        Retrieve and display information about departing flights from airports within a specified country,
+        optionally filtered by flight distance.
+
+        This method analyzes flights departing from all airports within the given country, visualizes these
+        flights on a map, and applies a distance cutoff to differentiate short-haul and long-haul flights. 
+        It calculates and displays the potential emissions savings if short-haul flights were replaced by 
+        rail services.
+
+        Parameters
+        ----------
+        country : str
+            The name of the country from which the departing flights are to be analyzed.
+        internal : bool, optional
+            If True, only flights departing to destinations within the same country are considered. Defaults to False.
+        cutoff : float, optional
+            The distance in kilometers used to differentiate between short-haul and long-haul flights. Defaults to 1000.0 km.
+
+        Returns
+        -------
+        None
+            Visualizes the flights on a map and prints the potential emissions savings. Does not return any value.
+
+        Notes
+        -----
+        The method uses the Haversine formula to calculate the distance between airports. It visualizes the flight
+        routes using Cartopy, marking short-haul flights in green and long-haul flights in orange. 
+
+        Raises
+        ------
+        ImportError
+            If required libraries (Cartopy, Pandas, or Matplotlib) are not installed.
+
+        Examples
+        --------
+        >>> flight_data.departing_flights_country('Italy', internal=True, cutoff=1500)
+        This will plot all internal flights from Italy, highlight short-haul flights, and print emissions savings.
         """
         def plot_all_routes_colors(df, cutoff):
             """
-            Plots all flight routes from the given DataFrame on a map.
+            Helper function to plot all flight routes on a map with different colors based on the cutoff distance.
 
-            Args:
-                df (DataFrame): DataFrame containing flight route information.
-                cutoff (float): The cutoff distance in kilometers. Routes with distances below this cutoff will be colored green.
+            Parameters
+            ----------
+            df : pandas.DataFrame
+                DataFrame containing flight route information including source and destination coordinates,
+                and the distance of each flight.
+            cutoff : float
+                Distance in kilometers to distinguish between short-haul and long-haul flights. Routes below
+                this distance will be colored differently to signify potential for replacement by rail services.
 
-            Returns:
-                None
-            """
-            
+            Returns
+            -------
+            None
+                Generates a map visualization of the flight routes, does not return any value.
+
+            """            
             fig, ax = plt.subplots(figsize=(15, 10), subplot_kw={'projection': ccrs.PlateCarree()})
             ax.add_feature(cfeature.LAND, facecolor='lightgray')  # Use a light gray for the land to increase contrast
             ax.add_feature(cfeature.COASTLINE, edgecolor='gray')
@@ -501,13 +682,31 @@ class FlightData:
 
     def aircrafts(self) -> list:
             """
-            This method returns the list of aircraft models available in the dataset.
+            Retrieve and clean the list of aircraft models from the dataset.
             
-            It modifies the list of models by replacing certain model names with their standardized versions,
-            and extends the list with additional models that in the dataframe are in the same rows. Finally, it returns the modified list of models.
-            
-            Returns:
-                list: The list of aircraft models.
+            This method processes the unique aircraft model names found in the dataset. It standardizes certain model names, 
+            replaces some with more descriptive versions, and extends the list with additional models that are variations of the same base model. 
+            The modifications aim to provide a clearer and more consistent representation of the aircraft models available.
+
+            Returns
+            -------
+            list
+                A list of standardized and extended aircraft model names.
+                
+            Notes
+            -----
+            The method operates on the 'Name' column of the airplanes_df DataFrame attribute of the class instance. It directly 
+            modifies the class's attribute list_of_models to include the processed list of aircraft models. Specific model names 
+            are standardized to ensure consistency and clarity in naming conventions. Additionally, related models are added to 
+            the list to provide a comprehensive overview of the aircraft types included in the dataset.
+
+            Examples
+            --------
+            Assuming flight_data is an instance of the class containing this method:
+
+            >>> models = flight_data.aircrafts()
+            >>> print(models)
+            This will print the list of standardized aircraft model names.
             """
             self.list_of_models = self.airplanes_df['Name'].unique().tolist()
 
@@ -547,10 +746,43 @@ class FlightData:
 
     
         
-   # lets define a class which takes the aircraft name and returns the information of the aircraft
     def aircraft_info(self, aircraft_name:str) -> pd.DataFrame:
         """
-        This method returns the information of a specific aircraft
+        Retrieve detailed information about a specific aircraft and present it as a DataFrame.
+
+        This method searches for an aircraft model within the available dataset. If the aircraft is found, 
+        it queries a large language model to obtain detailed information about the aircraft, such as its manufacturer, 
+        maximum speed, range, passenger capacity, and more. The information is then formatted into a DataFrame for easy visualization 
+        and analysis. If the aircraft model is not found in the dataset, the method raises an error with suggestions for possible matches.
+
+        Parameters
+        ----------
+        aircraft_name : str
+            The name of the aircraft model for which information is requested.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame containing detailed information about the aircraft, including model, manufacturer, max speed, 
+            range, passenger capacity, crew requirements, first flight date, production status, variants, and primary role.
+
+        Raises
+        ------
+        ValueError
+            If the specified aircraft model is not found in the dataset, this error is raised with a message suggesting possible matches.
+
+        Examples
+        --------
+        Assuming flight_data is an instance of the class containing this method and the aircrafts method:
+
+        >>> aircraft_df = flight_data.aircraft_info('Boeing 747')
+        >>> print(aircraft_df)
+        This prints a DataFrame with detailed information about the Boeing 747 aircraft.
+
+        Notes
+        -----
+        The method assumes access to a large language model through an API or similar interface for fetching the aircraft information. 
+        The method's functionality is dependent on the availability and response of the language model service.
         """
         aircraft_info = aircraft_name
         df = pd.DataFrame(self.aircrafts())
@@ -582,7 +814,41 @@ class FlightData:
     
     def airport_info(self, airport:str) -> pd.DataFrame:
         """
-        This method returns the information of a specific airport
+        Retrieve detailed information about a specific airport and present it as a DataFrame.
+
+        This method uses a large language model to query detailed information about a specified airport, including its code, 
+        location, size, facilities, traffic data, and more. The fetched data is returned as a pandas DataFrame, providing a structured 
+        and readable format for further analysis or display.
+
+        Parameters
+        ----------
+        airport : str
+            The name or code of the airport for which information is being requested.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame containing detailed information about the airport, such as its code, location, size, facilities, traffic, 
+            runway length, airlines served, historical information, services, and safety records.
+
+        Examples
+        --------
+        Assuming flight_data is an instance of the class containing this method:
+
+        >>> airport_df = flight_data.airport_info('JFK')
+        >>> print(airport_df)
+        This prints a DataFrame with detailed information about JFK Airport.
+
+        Notes
+        -----
+        The method relies on a large language model to generate the airport information. The success and accuracy of the information 
+        retrieved depend on the specific language model's capabilities and the input provided. The method assumes an implementation 
+        that can parse the language model's response into a Python dictionary, which is then used to create the DataFrame.
+
+        Raises
+        ------
+        ValueError
+            If the language model fails to return valid information or if the airport specified does not yield any results.
         """
         airport_info = airport
 

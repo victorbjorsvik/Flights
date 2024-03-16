@@ -12,6 +12,7 @@ from distances import haversine_distance, Coordinates
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+import folium
 
 
 class FlightData:
@@ -124,7 +125,7 @@ class FlightData:
         
         # Check if any airports exist for the given country
         if airports_country.empty:
-            #print(f"No airports found for {self.country} ")
+            print(f"No airports found for {self.country} ")
             return None
         
         # Calculate median and standard deviation for latitude and longitude
@@ -198,57 +199,67 @@ class FlightData:
         plt.show()
     
 
+   
     def departing_flights_airport(self, airport, internal=False):
         """
-        Retrieve and display information about departing flights from a given airport.
+        Retrieve and plot departing flights from a given airport on a map, displaying each route uniquely.
 
         Args:
-            airport (str): The IATA code of the airport for which departing flights will be retrieved.
-            internal (bool, optional): If True, only internal flights (destination in the same country) will be displayed. Defaults to False.
+            airport (str): The IATA code of the airport from which departing flights are to be retrieved.
+            internal (bool, optional): If set to True, only internal flights (flights within the same country) are displayed. Defaults to False, which shows all departing flights.
 
         Returns:
-            None
+            A Folium map object with plotted departing flights or None if no flights are found.
 
-        This method retrieves information about departing flights from a specified airport and displays it.
-        It joins the routes and airports DataFrames to obtain flight information.
-        It filters flights based on the given airport and optionally on whether they are internal.
-        If internal is True, only flights with the same source and destination country are displayed.
-        If there are no departing flights or no internal flights, appropriate messages are printed.
+        Description:
+            This function joins route data with airport information to retrieve detailed flight departures from the specified airport. It includes both the source and destination information, such as country and geographical coordinates (latitude and longitude).
+            
+            The function then filters the flights based on the specified airport code and whether the flight is internal. For internal flights, it further filters to include only those flights where the source and destination countries match.
+            
+            Unique departing flights are identified by ensuring no duplicate destination airports are plotted. This helps in visualizing each destination uniquely from the specified source airport.
+            
+            The method visualizes the flights on a map, marking the source airport in green and the destinations in red. Lines connecting the source and destination represent the flight routes. The map is centered around the source airport and adjusted for an appropriate zoom level to capture all routes effectively.
+            
+            If no flights are found, a message is printed, and the function returns None. Otherwise, it returns a Folium map object that can be displayed in Jupyter notebooks or saved as an HTML file for web viewing.
         """
-        # Join on Source airport
-        airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country']], on='Source airport')
-        # Rename the column
-        airport_info_1.rename(columns={'Country': 'Source Country'}, inplace=True)
-        
-        #print(airport_info_1)
-        
-        # Join on Destination airport
-        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA'), on='Destination airport', rsuffix='_dest')
-        # Rename the column if needed
-        airport_info_2.rename(columns={'Country': 'Destination Country'}, inplace=True)
-        # Drop the additional index columns
-        airport_info_2 = airport_info_2.reset_index(drop=True)
 
-        #print(airport_info_2)
+        # Join routes with airports to find Source and Destination information
+        airport_info_1 = self.routes_df.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Source airport', rsuffix='_source')
+        airport_info_1.rename(columns={'Country': 'Source Country', 'Latitude': 'Source Latitude', 'Longitude': 'Source Longitude'}, inplace=True)
+        airport_info_2 = airport_info_1.join(self.airports_df.set_index('IATA')[['Country', 'Latitude', 'Longitude']], on='Destination airport', rsuffix='_dest')
+        airport_info_2.rename(columns={'Country_dest': 'Destination Country', 'Latitude': 'Destination Latitude', 'Longitude': 'Destination Longitude'}, inplace=True)
         
         # Filter flights based on the given source airport
         source_flights = airport_info_2[airport_info_2['Source airport'] == airport]
-        #print(source_flights)
+        source_flights_unique = source_flights.drop_duplicates(subset=['Destination airport'])
+
 
         if internal:
             # Filter for internal flights (destination in the same country)
-            source_flights = source_flights[source_flights['Source Country'] == source_flights['Destination Country']]
+            source_flights_unique = source_flights_unique[source_flights_unique['Source Country'] == source_flights_unique['Destination Country']]
+            print(f"Internal flights from {airport} to destinations in the same country:")
+        else:
+            print(f"All flights from {airport}:")
 
         # Check if there are any flights to display
-        if not source_flights.empty:
-            if internal:
-                print(f"Internal flights from {airport} to destinations in the same country:")
-            else:
-                print(f"All flights from {airport}:")
-
-            print(source_flights[['Source Country', 'Source airport', 'Destination airport', 'Destination Country']])
+        if not source_flights_unique.empty:
+            # Create a base map centered around the source airport
+            m = folium.Map(location=[source_flights_unique.iloc[0]['Source Latitude'], source_flights_unique.iloc[0]['Source Longitude']], zoom_start=5)
+                
+            # Plot each route
+            for idx, row in source_flights_unique.iterrows():
+                source = [row['Source Latitude'], row['Source Longitude']]
+                destination = [row['Destination Latitude'], row['Destination Longitude']]
+                folium.Marker(source, popup=row['Source airport'], icon=folium.Icon(color="green")).add_to(m)
+                folium.Marker(destination, popup=row['Destination airport'], icon=folium.Icon(color="red")).add_to(m)
+                folium.PolyLine([source, destination], color="blue", weight=2.5, opacity=1).add_to(m)
+                
+            # Show the map
+            return m
         else:
-                print(f"No internal flights.")
+            print(f"No flights found from {airport}.")
+            return None
+
     
 
     def airplane_models(self, countries = None, N =10):

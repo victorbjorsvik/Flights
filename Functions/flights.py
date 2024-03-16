@@ -18,7 +18,9 @@ from IPython.display import Markdown, display
 import seaborn as sns
 from pandasai import SmartDataframe
 from ast import literal_eval
-from typing import Union
+from typing import Union, List, Optional
+from pydantic import BaseModel, Field
+
 
 # Helper functions for plotting flight routes on maps
 def plot_route(source_airport, dest_airport, source_lat, source_lon, dest_lat, dest_lon, ax):
@@ -73,7 +75,7 @@ def plot_all_routes(df):
 ################################# FlightData class ############################################
 ###############################################################################################
 
-class FlightData:
+class FlightData(BaseModel):
     """
     This class examines a dataset on international flight and airports
 
@@ -103,20 +105,26 @@ class FlightData:
         blablabla
     """
 
+    class Config:
+        arbitrary_types_allowed = True
 
-    def __init__(self):
-        self.download_dir = os.path.join("..", "downloads")
-        self.data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
-        self.data_files = {
-            "airplanes": "airplanes.csv",
-            "airports": "airports.csv",
-            "airlines": "airlines.csv",
-            "routes": "routes.csv"
-        }
-        self.airplanes_df = None
-        self.airports_df = None
-        self.airlines_df = None
-        self.routes_df = None
+    download_dir: str = Field(default_factory=lambda: os.path.join("..", "downloads"))
+    data_url: str = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
+    data_files: dict = Field(default_factory=lambda: {
+        "airplanes": "airplanes.csv",
+        "airports": "airports.csv",
+        "airlines": "airlines.csv",
+        "routes": "routes.csv"
+    })
+    airplanes_df: Optional[pd.DataFrame] = None
+    airports_df: Optional[pd.DataFrame] = None
+    airlines_df: Optional[pd.DataFrame] = None
+    routes_df: Optional[pd.DataFrame] = None
+    list_of_models: List[str] = []
+    distances: Optional[pd.Series] = None
+
+    def __init__(self, **data):
+        super().__init__(**data)
 
         # Create the downloads directory if it doesn't exist
         if not os.path.exists(self.download_dir):
@@ -180,7 +188,6 @@ class FlightData:
       
 
         # Filter airports for the given country
-        self.country = country
         airports_country = self.airports_df[self.airports_df['Country'] == country]
     
         
@@ -249,6 +256,7 @@ class FlightData:
         # Calculate distances for each flight
         airport_distances['Distance'] = [haversine_distance(src, dest) for src, dest in zip(source_coords, dest_coords)]
 
+        self.distances = airport_distances
         # Plot the distribution of flight distances
         plt.figure(figsize=(10, 6))
         plt.hist(airport_distances['Distance'], bins=20, edgecolor='black')
@@ -552,16 +560,28 @@ class FlightData:
 
         return df
 
+
+#if __name__ == "__main__":
+
 from api import api
 api()
 
-#flight_data = FlightData()
-#flight_data.airplane_models(["Germany", "Norway", "Sweden"])
+flight_data = FlightData()
 
-#print(flight_data.aircraft_info('Boeing 707'))
-#print(flight_data.airport_info('LAX'))
-
-#flight_data.departing_flights_country('Germany', internal=True)
-
+# Method 1: Plot airports in a country
+#flight_data.plot_airports('Germany')
+# Method 2: Plot the distribution of flight distances
+#flight_data.distance_analysis()
+#print(flight_data.distances) ######FIIXXXXXX
+# Method 3: Retrieve and display information about departing flights from a given airport
 #flight_data.departing_flights_airport('JFK')
-#TEEST
+# Method 4: Plot the N most used airplane models based on the number of routes
+#flight_data.airplane_models(["Germany", "Norway", "Sweden"])
+# Method 5: Retrieve and display information about departing flights from airports in a given country
+#flight_data.departing_flights_country('Germany', internal=True)
+# Method 6: Aircraft information
+#flight_data.aircrafts()
+# Method 7: Aircraft information
+#print(flight_data.aircraft_info('Boeing 707'))
+# Method 8: Airport information
+print(flight_data.airport_info('LAX'))

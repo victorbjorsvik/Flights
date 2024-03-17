@@ -1,3 +1,17 @@
+
+
+Need to be fixed: 
+
+-  Installtion and setup 
+
+-  How to run the analysis
+
+
+
+
+
+
+
 # Project Icaras: Advancing Sustainability in Commercial Airflight Analysis
 
 This project analyzes commercial airflight data for a sustainability study.  By leveraging data from the International Air Transport Association, we aim to uncover insights that promote a more environmentally friendly and informed approach to air travel. 
@@ -17,7 +31,7 @@ This project analyzes commercial airflight data for a sustainability study.  By 
 
 3) Decarbonisation Analysis
 
-    - Refinement of methods to differentiate between short-haul and long-haul flights based on a customizable distance cutoff, including visualization enhancements to distinguish these categories.
+    - Methods to differentiate between short-haul and long-haul flights based on a customizable distance cutoff, including visualization enhancements to distinguish these categories.
     - Quantitative analysis of potential emissions reductions by replacing short-haul flights with rail services, including an assessment of the impact on overall flight emissions. 
 
 
@@ -114,9 +128,37 @@ print(flight_data.airport_info('LAX'))
 
 # See the difference between long-haul and short-haul flights for a country within a Sustainability research
 flight_data.departing_flights_country('Italy', cutoff=1500)
-
-
 ```
+
+
+## Future Research 
+As we continue to explore how the aviation world impacts our planet, we're excited to push further into research that makes a real difference. Our next steps are all about finding smarter, more eco-friendly ways for planes to fly and trains to run. Let's dive in and see how we can make travel better for our world.
+### 1. Deepening the Analysis of Airplane Models' Carbon Footprint
+Building on analysis, further research can significantly enhance our understanding of airplane models environmental impact with a geospartial point of view over time. Two compelling areas for future exploration include:
+
+- #### 1.1 Regional Variations in Airplane Model Specifications and Their Impact on Sustainability: 
+    This study investigates the impact of regional preferences for airplane models on aviation sustainability. It focuses on how differences in aircraft specifications, influenced by regional regulations and environmental policies, affect the global aviation industry's carbon footprint. The goal is to highlight paths towards aligning aircraft selection with sustainability targets.
+- #### 1.2 Predictive Modeling for Fuel Efficiency and Emissions:
+    Develop predictive models to estimate the fuel efficiency and emissions of different airplane models under a variety of operational conditions, including altitude, speed, and load factors. Machine learning techniques can be employed to analyze historical flight data, combining it with specific aircraft characteristics to predict performance outcomes. This research can help airlines optimize their fleets and flight operations to reduce carbon emissions.
+    
+
+### 2. Transition to Rail Transportation 
+
+The transition from air to rail transportation presents a compelling alternative for reducing the transportation industry's carbon footprint. Future research in this area could include:
+
+- #### 2.1 Temporal Development: 
+    Analyzing how the shift from air to rail transportation evolves over time, considering the expansion of high-speed rail networks and their adoption by the public.
+- #### 2.2 International Comparison: 
+    Comparing the effectiveness of rail transportation as an alternative to short-haul flights in different regions, with a focus on Europe and other areas with established high-speed rail networks.
+- #### 2.3 Taxation and Policy Correlation:
+    Investigating the correlation between aviation taxes, rail subsidies, and the modal shift from air to rail. This research could identify policy frameworks that effectively encourage rail travel over short-haul flights.
+- #### 2.4 Long-Distance Analysis:
+    Exploring the viability of extending rail services to longer distances, traditionally dominated by air travel, including the challenges and benefits of such an expansion.
+- #### 2.5 Infrastructure and Economic Analysis: 
+    Assessing costs and challenges of expanding rail networks to support a broader transition from air to rail. This includes examining the feasibility of new rail projects, their environmental benefits, and their impact on reducing air travel's carbon footprint.
+
+
+
 
 
 

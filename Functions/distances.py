@@ -19,9 +19,10 @@ class Coordinates(BaseModel):
     lon : float
         Longitude of the point, degrees.
 
+    :no-index:    
     """
 
-    lat: float
+    lat: float 
     lon: float
 
 

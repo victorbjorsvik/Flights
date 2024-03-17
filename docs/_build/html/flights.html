@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>flights module &mdash; Flights 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Flights
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">flights module</a><ul>
+<li><a class="reference internal" href="#flights.FlightData"><code class="docutils literal notranslate"><span class="pre">FlightData</span></code></a><ul>
+<li><a class="reference internal" href="#flights.FlightData.airplanes_df"><code class="docutils literal notranslate"><span class="pre">FlightData.airplanes_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.airports_df"><code class="docutils literal notranslate"><span class="pre">FlightData.airports_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.airlines_df"><code class="docutils literal notranslate"><span class="pre">FlightData.airlines_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.routes_df"><code class="docutils literal notranslate"><span class="pre">FlightData.routes_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.download_dir"><code class="docutils literal notranslate"><span class="pre">FlightData.download_dir</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.data_url"><code class="docutils literal notranslate"><span class="pre">FlightData.data_url</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.data_files"><code class="docutils literal notranslate"><span class="pre">FlightData.data_files</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.plot_airports"><code class="docutils literal notranslate"><span class="pre">FlightData.plot_airports()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.distance_analysis"><code class="docutils literal notranslate"><span class="pre">FlightData.distance_analysis()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.departing_flights_airport"><code class="docutils literal notranslate"><span class="pre">FlightData.departing_flights_airport()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.airplane_models"><code class="docutils literal notranslate"><span class="pre">FlightData.airplane_models()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.departing_flights_country"><code class="docutils literal notranslate"><span class="pre">FlightData.departing_flights_country()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.aircrafts"><code class="docutils literal notranslate"><span class="pre">FlightData.aircrafts()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.aircraft_info"><code class="docutils literal notranslate"><span class="pre">FlightData.aircraft_info()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.airport_info"><code class="docutils literal notranslate"><span class="pre">FlightData.airport_info()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.Config"><code class="docutils literal notranslate"><span class="pre">FlightData.Config</span></code></a><ul>
+<li><a class="reference internal" href="#flights.FlightData.Config.arbitrary_types_allowed"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.arbitrary_types_allowed</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.Config.airplanes_df"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.airplanes_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.Config.airports_df"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.airports_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.Config.airlines_df"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.airlines_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.Config.routes_df"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.routes_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.Config.list_of_models"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.list_of_models</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.Config.distances"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.distances</span></code></a></li>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">FlightData.Config.arbitrary_types_allowed</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">FlightData.aircraft_info()</span></code></a></li>
+<li><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">FlightData.aircrafts()</span></code></a></li>
+<li><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">FlightData.airlines_df</span></code></a></li>
+<li><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">FlightData.airplane_models()</span></code></a></li>
+<li><a class="reference internal" href="#id5"><code class="docutils literal notranslate"><span class="pre">FlightData.airplanes_df</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.airport_distances"><code class="docutils literal notranslate"><span class="pre">FlightData.airport_distances()</span></code></a></li>
+<li><a class="reference internal" href="#id6"><code class="docutils literal notranslate"><span class="pre">FlightData.airport_info()</span></code></a></li>
+<li><a class="reference internal" href="#id7"><code class="docutils literal notranslate"><span class="pre">FlightData.airports_df</span></code></a></li>
+<li><a class="reference internal" href="#id8"><code class="docutils literal notranslate"><span class="pre">FlightData.departing_flights_airport()</span></code></a></li>
+<li><a class="reference internal" href="#id9"><code class="docutils literal notranslate"><span class="pre">FlightData.departing_flights_country()</span></code></a></li>
+<li><a class="reference internal" href="#id10"><code class="docutils literal notranslate"><span class="pre">FlightData.distance_analysis()</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.distances"><code class="docutils literal notranslate"><span class="pre">FlightData.distances</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.list_of_models"><code class="docutils literal notranslate"><span class="pre">FlightData.list_of_models</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.model_config"><code class="docutils literal notranslate"><span class="pre">FlightData.model_config</span></code></a></li>
+<li><a class="reference internal" href="#flights.FlightData.model_fields"><code class="docutils literal notranslate"><span class="pre">FlightData.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#id11"><code class="docutils literal notranslate"><span class="pre">FlightData.plot_airports()</span></code></a></li>
+<li><a class="reference internal" href="#id12"><code class="docutils literal notranslate"><span class="pre">FlightData.routes_df</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flights</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">flights module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/flights.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-flights">
+<span id="flights-module"></span><h1>flights module<a class="headerlink" href="#module-flights" title="Link to this heading"></a></h1>
+<p>This module contains a class for examining and analyzing international flight and airport data.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="flights.FlightData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flights.</span></span><span class="sig-name descname"><span class="pre">FlightData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">airplanes_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">airports_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">airlines_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_of_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>A class for examining and analyzing international flight and airport data.</p>
+<p>This class provides methods for analyzing flight routes, aircraft models,
+and airports using data from various CSV files.
+It enables visualization of airport locations,
+analysis of flight distances, and retrieval of
+detailed information about specific
+aircraft models and airports.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.airplanes_df">
+<span class="sig-name descname"><span class="pre">airplanes_df</span></span><a class="headerlink" href="#flights.FlightData.airplanes_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about several airplane models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.airports_df">
+<span class="sig-name descname"><span class="pre">airports_df</span></span><a class="headerlink" href="#flights.FlightData.airports_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about several international airports.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.airlines_df">
+<span class="sig-name descname"><span class="pre">airlines_df</span></span><a class="headerlink" href="#flights.FlightData.airlines_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about several international airlines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.routes_df">
+<span class="sig-name descname"><span class="pre">routes_df</span></span><a class="headerlink" href="#flights.FlightData.routes_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about several domestic and international flights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.download_dir">
+<span class="sig-name descname"><span class="pre">download_dir</span></span><a class="headerlink" href="#flights.FlightData.download_dir" title="Link to this definition"></a></dt>
+<dd><p>The directory path where the data files are downloaded and extracted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.data_url">
+<span class="sig-name descname"><span class="pre">data_url</span></span><a class="headerlink" href="#flights.FlightData.data_url" title="Link to this definition"></a></dt>
+<dd><p>The URL to download the dataset zip file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.data_files">
+<span class="sig-name descname"><span class="pre">data_files</span></span><a class="headerlink" href="#flights.FlightData.data_files" title="Link to this definition"></a></dt>
+<dd><p>A dictionary mapping data file types to their file names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.plot_airports">
+<span class="sig-name descname"><span class="pre">plot_airports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_dev_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.plot_airports" title="Link to this definition"></a></dt>
+<dd><p>Visualizes airports in a specified country on a map,
+filtering based on a standard deviation threshold.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.distance_analysis">
+<span class="sig-name descname"><span class="pre">distance_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.distance_analysis" title="Link to this definition"></a></dt>
+<dd><p>Analyzes and plots the distribution of flight distances for all flights.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.departing_flights_airport">
+<span class="sig-name descname"><span class="pre">departing_flights_airport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">airport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.departing_flights_airport" title="Link to this definition"></a></dt>
+<dd><p>Displays information about departing flights from a specified airport,
+with an option to filter for internal flights.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.airplane_models">
+<span class="sig-name descname"><span class="pre">airplane_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">countries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.airplane_models" title="Link to this definition"></a></dt>
+<dd><p>Identifies and plots the most frequently used airplane models
+globally or for specific countries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.departing_flights_country">
+<span class="sig-name descname"><span class="pre">departing_flights_country</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.departing_flights_country" title="Link to this definition"></a></dt>
+<dd><p>Analyzes and visualizes departing flights from a given country,
+with options for internal flights and distance cutoffs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.aircrafts">
+<span class="sig-name descname"><span class="pre">aircrafts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.aircrafts" title="Link to this definition"></a></dt>
+<dd><p>Returns a modified list of aircraft models available in the dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.aircraft_info">
+<span class="sig-name descname"><span class="pre">aircraft_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aircraft_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.aircraft_info" title="Link to this definition"></a></dt>
+<dd><p>Retrieves detailed information about a specified aircraft
+and presents it as a DataFrame.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.airport_info">
+<span class="sig-name descname"><span class="pre">airport_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">airport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#flights.FlightData.airport_info" title="Link to this definition"></a></dt>
+<dd><p>Retrieves detailed information about a specified airport
+and presents it as a DataFrame.</p>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></dt><dd><p>The fundamental structure for storing and managing data.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>This class is part of a project aimed at advancing sustainability in
+commercial airflight through data analysis.
+It leverages the pandas library for data manipulation and visualization
+techniques to explore various aspects
+of flight data, including airport locations, flight distances,
+and detailed information on aircraft and airports.</p>
+<p class="rubric">Examples</p>
+<p>To use this class to analyze flight data:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span> <span class="o">=</span> <span class="n">FlightData</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">plot_airports</span><span class="p">(</span><span class="s1">&#39;Germany&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">flight_data</span><span class="o">.</span><span class="n">aircrafts</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">flight_data</span><span class="o">.</span><span class="n">aircraft_info</span><span class="p">(</span><span class="s1">&#39;Boeing 747&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="flights.FlightData.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#flights.FlightData.Config" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration settings for the FlightData class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.Config.arbitrary_types_allowed">
+<span class="sig-name descname"><span class="pre">arbitrary_types_allowed</span></span><a class="headerlink" href="#flights.FlightData.Config.arbitrary_types_allowed" title="Link to this definition"></a></dt>
+<dd><p>A flag indicating whether arbitrary
+types are allowed in the configuration.
+Defaults to True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.Config.airplanes_df">
+<span class="sig-name descname"><span class="pre">airplanes_df</span></span><a class="headerlink" href="#flights.FlightData.Config.airplanes_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about
+airplane models.
+Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.Config.airports_df">
+<span class="sig-name descname"><span class="pre">airports_df</span></span><a class="headerlink" href="#flights.FlightData.Config.airports_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about
+international airports.
+Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.Config.airlines_df">
+<span class="sig-name descname"><span class="pre">airlines_df</span></span><a class="headerlink" href="#flights.FlightData.Config.airlines_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about
+international airlines.
+Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.Config.routes_df">
+<span class="sig-name descname"><span class="pre">routes_df</span></span><a class="headerlink" href="#flights.FlightData.Config.routes_df" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information about
+domestic and international flights.
+Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.Config.list_of_models">
+<span class="sig-name descname"><span class="pre">list_of_models</span></span><a class="headerlink" href="#flights.FlightData.Config.list_of_models" title="Link to this definition"></a></dt>
+<dd><p>A list containing names of airplane models.
+Defaults to an empty list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.Config.distances">
+<span class="sig-name descname"><span class="pre">distances</span></span><a class="headerlink" href="#flights.FlightData.Config.distances" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing information
+about flight distances.
+Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">arbitrary_types_allowed</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">aircraft_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aircraft_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd><p>Retrieve detailed information about a specific aircraft
+and present it as a DataFrame.</p>
+<p>This method searches for an aircraft model within the
+available dataset. If the aircraft is found,
+it queries a large language model to obtain detailed
+information about the aircraft, such as its manufacturer,
+maximum speed, range, passenger capacity, and more.
+The information is then formatted into a DataFrame
+for easy visualization and analysis. If the aircraft
+model is not found in the dataset,
+the method raises an error with suggestions for possible matches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>aircraft_name</strong> (<em>str</em>) – The name of the aircraft model for which information is requested.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing detailed information about the aircraft,
+including model, manufacturer, max speed,
+range, passenger capacity, crew requirements,
+first flight date, production status, variants, and primary role.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the specified aircraft model is not found in the dataset,
+    this error is raised with a message suggesting possible matches.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of the class containing
+this method and the aircrafts method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aircraft_df</span> <span class="o">=</span> <span class="n">flight_data</span><span class="o">.</span><span class="n">aircraft_info</span><span class="p">(</span><span class="s1">&#39;Boeing 747&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">aircraft_df</span><span class="p">)</span>
+<span class="go">This prints a DataFrame with detailed information about the Boeing 747 aircraft.</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>The method assumes access to a large language model
+through an API or similar interface for fetching the aircraft information.
+The method’s functionality is dependent on the
+availability and response of the language model service.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">aircrafts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd><p>Retrieve and clean the list of aircraft models from the dataset.</p>
+<p>This method processes the unique aircraft model names found in the dataset.
+It standardizes certain model names,
+replaces some with more descriptive versions, and extends the
+list with additional models that are variations of the same base model.
+The modifications aim to provide a clearer and more
+consistent representation of the aircraft models available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of standardized and extended aircraft model names.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The method operates on the ‘Name’ column of the airplanes_df
+DataFrame attribute of the class instance. It directly
+modifies the class’s attribute list_of_models to include the
+processed list of aircraft models. Specific model names
+are standardized to ensure consistency and clarity in naming
+conventions. Additionally, related models are added to
+the list to provide a comprehensive overview of the
+aircraft types included in the dataset.</p>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of the class containing this method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">models</span> <span class="o">=</span> <span class="n">flight_data</span><span class="o">.</span><span class="n">aircrafts</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+<span class="go">This will print the list of standardized aircraft model names.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">airlines_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">airplane_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">countries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd><p>Identify and visualize the top N most frequently used
+airplane models based on flight route data.</p>
+<p>This method aggregates flight data to determine the
+most commonly used airplane models, either globally
+or within specified countries. It then generates a
+bar plot showcasing the top N airplane models by their
+frequency of use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>countries</strong> (<em>None</em><em>, </em><em>str</em><em>, or </em><em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Specifies the country or countries for which the
+analysis is to be conducted. If None (default),
+the analysis encompasses routes worldwide.</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of top airplane models to be displayed
+in the visualization. Defaults to 10.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This method does not return a value. It displays a bar
+plot of the top N most used airplane models.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The analysis merges flight route data with airplane model
+information using the ‘Equipment’ field from
+the routes data, which corresponds to the ‘IATA code’
+in the airplane data. The accuracy and
+comprehensiveness of this merged data are
+crucial for the reliability of the analysis.</p>
+<p>The method dynamically adjusts the plot title to indicate
+whether the analysis is global or focused on
+specific countries. If countries are specified,
+the plot title reflects this by including the names of
+the countries in the analysis.</p>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of a class containing
+this method along with necessary data attributes:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">airplane_models</span><span class="p">()</span>
+<span class="go">This will display a bar plot for the top 10 most</span>
+<span class="go">used airplane models worldwide.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">airplane_models</span><span class="p">(</span><span class="s1">&#39;France&#39;</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">This will display a bar plot for the top 5 most used</span>
+<span class="go">airplane models for routes associated with France.</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the specified country or countries do not
+    match any entries in the routes or airports data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">airplanes_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="flights.FlightData.airport_distances">
+<span class="sig-name descname"><span class="pre">airport_distances</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#flights.FlightData.airport_distances" title="Link to this definition"></a></dt>
+<dd><p>Calculate and store the distances between all pairs of source and
+destination airports present in the dataset.</p>
+<p>This method processes the routes and airport data to calculate the
+great-circle distances between each pair of source
+and destination airports using the Haversine formula.
+The calculated distances are stored in a new ‘Distance’ column
+within a DataFrame that includes both the original route
+information and the corresponding source and destination
+airport details (country, latitude, and longitude).
+This enhanced DataFrame is then stored as an attribute of the
+FlightData class for further analysis or reference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Does not return a value but updates the distances attribute of
+the class instance with a DataFrame containing
+the distances between airports for each route in the dataset.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The method relies on the availability of accurate latitude and longitude
+information for each airport in the airports_df
+DataFrame and route information in the routes_df DataFrame.
+It assumes that these DataFrames are already loaded into
+the FlightData class instance and correctly formatted.</p>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of the FlightData class with properly
+loaded and formatted airports_df and routes_df:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">airport_distances</span><span class="p">()</span>
+<span class="go">This invocation will calculate the distances for all routes and update</span>
+<span class="go">the flight_data.distances attribute with the results.</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">haversine_distance</span></code></dt><dd><p>The function used for calculating the</p>
+</dd>
+</dl>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">great-circle</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">airport_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">airport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd><p>Retrieve detailed information about a specific airport
+and present it as a DataFrame.</p>
+<p>This method uses a large language model to query
+detailed information about a specified airport,
+including its code,
+location, size, facilities, traffic data, and more.
+The fetched data is returned as a pandas DataFrame, providing a structured
+and readable format for further analysis or display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>airport</strong> (<em>str</em>) – The name or code of the airport for which information is being requested.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing detailed information about the airport,
+such as its code, location, size, facilities, traffic,
+runway length, airlines served, historical
+information, services, and safety records.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of the class containing this method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">airport_df</span> <span class="o">=</span> <span class="n">flight_data</span><span class="o">.</span><span class="n">airport_info</span><span class="p">(</span><span class="s1">&#39;JFK&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">airport_df</span><span class="p">)</span>
+<span class="go">This prints a DataFrame with detailed information about JFK Airport.</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>The method relies on a large language model to generate the
+airport information. The success and accuracy of the information
+retrieved depend on the specific language model’s capabilities
+and the input provided. The method assumes an implementation
+that can parse the language model’s response into
+a Python dictionary, which is then used to create the DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the language model fails to return valid
+    information or if the airport specified does not yield any results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">airports_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">departing_flights_airport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">airport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd><p>Retrieve and visualize departing flights from a specified airport,
+with an option to filter for internal flights.</p>
+<p>This method leverages the pre-calculated distances between airports
+stored in the distances attribute of the class
+to identify and display departing flights from a given airport.
+It provides an option to filter the visualization to
+show only internal flights (flights where the destination
+airport is within the same country as the departure airport).
+Flight routes are visualized using Cartopy, with different
+marker styles to distinguish between internal and
+international flights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>airport</strong> (<em>str</em>) – The IATA code of the airport from which departing flights are to be visualized.</p></li>
+<li><p><strong>internal</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, limits the visualization to internal flights only.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Generates a plot visualizing the departing flights from the specified airport.
+This method does not return a value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The visualization differentiates between internal and international</p></li>
+</ul>
+<p>flights using distinct marker styles.
+- This method relies on the distances DataFrame, which should already
+be populated with the distances between all pairs of
+airports in the dataset. It is assumed that this DataFrame
+includes information about the source and destination airports,
+their countries, latitudes, longitudes, and the calculated distances.
+- Cartopy is utilized for map rendering. Ensure Cartopy and
+its dependencies are installed and properly configured.</p>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of the class containing this method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">departing_flights_airport</span><span class="p">(</span><span class="s1">&#39;JFK&#39;</span><span class="p">,</span> <span class="n">internal</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">This will visualize all departing flights from JFK Airport,</span>
+<span class="go">showing both internal and international flights.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">departing_flights_airport</span><span class="p">(</span><span class="s1">&#39;JFK&#39;</span><span class="p">,</span> <span class="n">internal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">This will only visualize internal departing flights from JFK Airport.</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the specified airport code does not exist in the provided datasets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">departing_flights_country</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
+<dd><p>Analyzes and visualizes departing flights from all airports
+within a specified country, with an option to filter by flight distance.</p>
+<p>This method leverages the distances DataFrame to identify
+flights departing from the specified country and visualizes them on a map.
+It includes options to filter these flights to internal flights only
+and to differentiate flights based on a specified distance cutoff,
+categorizing them as short-haul or long-haul.
+The visualization highlights short-haul flights
+in green and long-haul flights in orange. Additionally,
+the method estimates potential emissions savings if short-haul flights
+were replaced by rail services, based on the distances of these flights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country</strong> (<em>str</em>) – The name of the country from which the departing flights are analyzed.</p></li>
+<li><p><strong>internal</strong> (<em>bool</em><em>, </em><em>optional</em>) – If set to True, filters the analysis to include only internal flights,
+i.e., flights to destinations within the same country. Defaults to False.</p></li>
+<li><p><strong>cutoff</strong> (<em>float</em><em>, </em><em>optional</em>) – The distance in kilometers used to differentiate between
+short-haul and long-haul flights. Defaults to 1000.0 km.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Generates a map visualization of the flight routes
+departing from the specified country and prints potential
+emissions savings. This method does not return a value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The visualization uses Cartopy to render the flight routes</p></li>
+</ul>
+<p>on a map, distinguishing between short-haul and long-haul
+flights with different colors and markers.
+- This method assumes that the distances DataFrame is already
+populated with the necessary distance calculations between airports.
+- Potential emissions savings are calculated based on the
+assumption that replacing short-haul flights with rail
+services can significantly reduce carbon emissions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ImportError</strong> – If the required libraries (Cartopy, Pandas, or Matplotlib) are not installed.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of the class with the necessary data loaded:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">departing_flights_country</span><span class="p">(</span><span class="s1">&#39;Italy&#39;</span><span class="p">,</span> <span class="n">internal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">1500</span><span class="p">)</span>
+<span class="go">This invocation will plot all internal flights within Italy,</span>
+<span class="go">differentiate short-haul flights, and display potential emissions savings.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">distance_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id10" title="Link to this definition"></a></dt>
+<dd><p>Analyze and visualize the distribution of flight distances
+across all routes in the dataset.</p>
+<p>This method utilizes pre-calculated distances stored in the
+distances attribute, which should contain
+the great-circle distances between source and destination
+airports for each route. It generates a histogram
+to visualize the distribution of these distances,
+providing insights into the frequency of various flight lengths
+within the dataset.</p>
+<p>The calculation of distances, assumed to have been done
+prior to this method’s invocation, uses the Haversine
+formula to estimate the shortest path over the
+Earth’s surface between two points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Does not return any value. A histogram plot of the
+flight distances distribution is displayed.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The method assumes that the distances DataFrame is already</p></li>
+</ul>
+<p>populated with the necessary distance calculations
+between airports.
+- The Haversine formula is used to calculate these distances,
+assuming a spherical model of the Earth.
+- This visualization can help in understanding the range and
+distribution of flight distances within the dataset,
+including identifying common flight lengths and outliers.</p>
+<p class="rubric">Examples</p>
+<p>Assuming flight_data is an instance of the class containing
+this method, with distances pre-populated:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_data</span><span class="o">.</span><span class="n">distance_analysis</span><span class="p">()</span>
+<span class="go">This will display a histogram plot showing the distribution</span>
+<span class="go">of flight distances across all routes in the dataset.</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>AttributeError</strong> – If the distances attribute is not present or
+    improperly formatted within the class instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.distances">
+<span class="sig-name descname"><span class="pre">distances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#flights.FlightData.distances" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.list_of_models">
+<span class="sig-name descname"><span class="pre">list_of_models</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#flights.FlightData.list_of_models" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#flights.FlightData.model_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="flights.FlightData.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'airlines_df':</span> <span class="pre">FieldInfo(annotation=Union[DataFrame,</span> <span class="pre">NoneType],</span> <span class="pre">required=False),</span> <span class="pre">'airplanes_df':</span> <span class="pre">FieldInfo(annotation=Union[DataFrame,</span> <span class="pre">NoneType],</span> <span class="pre">required=False),</span> <span class="pre">'airports_df':</span> <span class="pre">FieldInfo(annotation=Union[DataFrame,</span> <span class="pre">NoneType],</span> <span class="pre">required=False),</span> <span class="pre">'distances':</span> <span class="pre">FieldInfo(annotation=Union[DataFrame,</span> <span class="pre">NoneType],</span> <span class="pre">required=False),</span> <span class="pre">'list_of_models':</span> <span class="pre">FieldInfo(annotation=List[str],</span> <span class="pre">required=False,</span> <span class="pre">default=[]),</span> <span class="pre">'routes_df':</span> <span class="pre">FieldInfo(annotation=Union[DataFrame,</span> <span class="pre">NoneType],</span> <span class="pre">required=False)}</span></em><a class="headerlink" href="#flights.FlightData.model_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">plot_airports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_dev_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id11" title="Link to this definition"></a></dt>
+<dd><p>Plot airports located within a specified country, filtering outliers
+based on standard deviation thresholds.</p>
+<p>This method filters the airport data for a specified country and
+visualizes the locations on a map using Cartopy.
+It applies a filtering criterion to exclude airports that fall outside
+a specified number of standard deviations
+from the median latitude and longitude, effectively removing outlier
+locations to provide a cleaner visualization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country</strong> (<em>str</em>) – The name of the country for which airports are to be plotted.</p></li>
+<li><p><strong>std_dev_threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – The threshold in terms of the number of standard deviations
+from the median latitude and longitude.
+Airports falling outside this range are considered outliers
+and are not plotted. The default value is 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This method does not return any value but produces a
+matplotlib plot displaying the airports.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Requires matplotlib and Cartopy for plotting. Make sure these
+libraries are installed and correctly set up
+before calling this method. The method filters out
+outlier airports based on the standard deviation threshold
+to focus the visualization on the most relevant areas.</p>
+<p class="rubric">Examples</p>
+<p>Assuming flight_analysis is an instance of a class containing
+this method and the necessary airport data:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">flight_analysis</span><span class="o">.</span><span class="n">plot_airports</span><span class="p">(</span><span class="s1">&#39;Germany&#39;</span><span class="p">,</span> <span class="n">std_dev_threshold</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">This will plot the airports in Germany, excluding those that</span>
+<span class="go">are more than two standard deviations</span>
+<span class="go">from the median latitude or longitude.</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If no airports are found in the specified country,
+    or if the provided country parameter is not
+    a valid country name within the airports data.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cartopy</span></code></dt><dd><p>For creating maps and plotting geographical data.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">routes_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id12" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Victor Bjorsvik, Hanna Pedersen, Irene Abbatelli, Luca Oeztekin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

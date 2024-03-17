@@ -1,5 +1,3 @@
-How to run the analysis
-
 # Project Icaras: Commercial Airflight Analysis with a Lens to Sustainability
 This project analyzes commercial airflight data for a sustainability study.  By leveraging data from the International Air Transport Association, we aim to uncover insights that promote a more environmentally friendly and informed approach to air travel. 
 

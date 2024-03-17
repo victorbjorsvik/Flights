@@ -1027,7 +1027,6 @@ class FlightData(BaseModel):
             short_haul_flights_count = len(short_haul)
 
             plot_all_routes_colors(source_flights, cutoff=cutoff)
-            print(f"Emissions saved by using train: {emissions_saved} kilograms")
 
         else:
             print("No internal flights.")

@@ -1,17 +1,6 @@
-Need to be fixed: 
+How to run the analysis
 
--  Installtion and setup 
-
--  How to run the analysis
-
-
-
-
-
-
-
-# Project Icaras: Advancing Sustainability in Commercial Airflight Analysis
-
+# Project Icaras: Commercial Airflight Analysis with a Lens to Sustainability
 This project analyzes commercial airflight data for a sustainability study.  By leveraging data from the International Air Transport Association, we aim to uncover insights that promote a more environmentally friendly and informed approach to air travel. 
 
 
@@ -20,7 +9,7 @@ This project analyzes commercial airflight data for a sustainability study.  By 
 1) Analysis and Development
 
     - Development of a function to calculate real distances between airports, using a spherical approximation of the Earth.
-   -  Creation of multiple methods within the project class to perform specific analyses, such as plotting airport locations within a country, analyzing distance distributions, and visualizing flight data based on various criteria (e.g., internal vs. international flights).
+    - Creation of multiple methods within the project class to perform specific analyses, such as plotting airport locations within a country, analyzing distance distributions, and visualizing flight data based on various criteria (e.g., internal vs. international flights).
 
 2) Visualization and Insights
 
@@ -35,21 +24,13 @@ This project analyzes commercial airflight data for a sustainability study.  By 
 
 
 
-
-
-
-
 ## Data Sources
 
 For this project, we will be using data from [International Air Transport Association](https://www.iata.org/).
 The datasets can be found [here](https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip?inline=false). These Datasets provide extensive insights about the aircraft industry and contains detailed information on routes, airplanes, airports, and airlines.
 
 
-Included Datasets: 
-- routes.csv
-- airlines.csv
-- airplanes.csv 
-- airports.csv
+**Included Datasets**: routes.csv / airlines.csv / airplanes.csv / airports.csv
 
 
 
@@ -57,27 +38,48 @@ Included Datasets:
 
 To run this project, clone the repository and create a custom environment using the provided environment.yml file:
 
+
+
 1) Clone the repsoitory
 
+    ```bash
     https://gitlab.com/victorbjorsvik/adpro_group_project.git
+    ```
+
+Due to specific compiler issues and dependencies that vary between operating systems, we've created separate environment files for this project. For Windows users, please follow the instructions below to set up your environment.
+
+2.1) Create the custom environment:
+
+   - **For Windows:**
 
 
-2) create custom environment 
+        
+            conda env create -f environment_windows.yml
 
-    bash
-    conda env create -f environment.yml
+
+   - **For Mac  :**
     
+            conda env create -f environment_mac.yml
 
-3) Activate the environment: 
-    bash
-    conda activate adpro_project
+2.2) Activate the created environment:
+
+
+   - **On Windows:**
     
+            conda activate flights_win
+
+
+   - **On Mac  :**
+    
+            conda activate flights_mac
+
+
 
 
 ## How to run the analysis: 
 The flights.py file contains the FlightData class with methods designed for comprehensive flight data analysis. Here's how to use the core functionalities:
 
-python
+``` python
 from flights import FlightData
 
 # Initialize and download data
@@ -109,7 +111,7 @@ flight_data.distance_analysis()
      flight_data.airplane_models(countries=None, N=5)
 
 
-    #See most commonly used airplane models for one country by choosing: Germany, France or Norway.
+    # See most commonly used airplane models for one country by choosing: Germany, France or Norway.
 
     flight_data.airplane_models(countries='Germany', N=5)
 
@@ -126,13 +128,12 @@ print(flight_data.airport_info('LAX'))
 
 # See the difference between long-haul and short-haul flights for a country within a Sustainability research
 flight_data.departing_flights_country('Italy', cutoff=1500)
-
-
+```
 
 ## Future Research 
-As we continue to explore how the aviation world impacts our planet, we're excited to push further into research that makes a real difference. Our next steps are all about finding smarter, more eco-friendly ways for planes to fly and trains to run. Let's dive in and see how we can make travel better for our world.
+As we continue to explore how the aviation world impacts our planet, we're excited to push further into research that makes a real difference. Our next steps are all about finding smarter, more eco-friendly ways for planes to fly and trains to run.
 ### 1. Deepening the Analysis of Airplane Models' Carbon Footprint
-Building on analysis, further research can significantly enhance our understanding of airplane models environmental impact with a geospartial point of view over time. Two compelling areas for future exploration include:
+Building upon our initial analyses, future research can significantly enrich our journey in understanding the environmental impacts of airplane models by integrating data on geospatial variations through time. Two compelling areas for future exploration include:
 
 - #### 1.1 Regional Variations in Airplane Model Specifications and Their Impact on Sustainability: 
     This study investigates the impact of regional preferences for airplane models on aviation sustainability. It focuses on how differences in aircraft specifications, influenced by regional regulations and environmental policies, affect the global aviation industry's carbon footprint. The goal is to highlight paths towards aligning aircraft selection with sustainability targets.
@@ -156,6 +157,16 @@ The transition from air to rail transportation presents a compelling alternative
     Assessing costs and challenges of expanding rail networks to support a broader transition from air to rail. This includes examining the feasibility of new rail projects, their environmental benefits, and their impact on reducing air travel's carbon footprint.
 
 
+## Contributing
+
+- **Pull Requests:** Your Welcome! For big updates, start with an issue to chat about your ideas.
+- **Tests:** Updated tests are crucial for new features or fixes.
+
+
+
+## License
+
+This project is licensed under the terms of the GNU License. For more details, please see [LICENSE](https://gitlab.com/victorbjorsvik/adpro_group_project/-/blob/main/LICENSE?ref_type=heads).
 
 
 
@@ -175,6 +186,8 @@ The transition from air to rail transportation presents a compelling alternative
 - Student Number: 58165
 - Email: 58165@novasbe.pt
 
-#### Luca Oeztekin
+#### Luca Oeztekin 
 - Student Number: 59168 
 - Email: 59168@novasbe.pt
+
+

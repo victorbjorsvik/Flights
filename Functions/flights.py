@@ -3,20 +3,17 @@ This module contains a class for examining and analyzing international flight an
 """
 
 import os
+from ast import literal_eval
 import pandas as pd
 import requests
 from zipfile import ZipFile
-from typing import List, Dict, Union, Optional
-from pydantic import BaseModel, Field
+from typing import List, Union, Optional
+from pydantic import BaseModel
 from distances import haversine_distance, Coordinates
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from langchain_openai import OpenAI, ChatOpenAI
-import langchain
-from IPython.display import Markdown, display
-import seaborn as sns
-from ast import literal_eval
+from langchain_openai import ChatOpenAI
 
 
 class FlightData(BaseModel):
@@ -87,6 +84,8 @@ class FlightData(BaseModel):
     """
 
     class Config:
+        """Config pydantic to allow arbitrary types."""
+
         arbitrary_types_allowed = True
 
     airplanes_df: Optional[pd.DataFrame] = None
@@ -552,7 +551,7 @@ class FlightData(BaseModel):
             plot_all_routes_colors(source_flights)
 
         else:
-            print(f"No internal flights.")
+            print("No internal flights.")
 
     def airplane_models(
         self, countries: Union[str, list, None] = None, N: int = 10

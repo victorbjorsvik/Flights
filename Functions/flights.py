@@ -99,9 +99,10 @@ class FlightData:
     """
 
     class Config:
-        """ 
-        Pydantic configuration for the FlightData class. 
         """
+        Pydantic configuration for the FlightData class.
+        """
+
         arbitrary_types_allowed = True
 
     airplanes_df: Optional[pd.DataFrame] = None
@@ -184,7 +185,7 @@ class FlightData:
         The calculated distances are stored in a new 'Distance' column
         within a DataFrame that includes both the original route
         information and the corresponding source and destination
-        airport details (country, latitude, and longitude). 
+        airport details (country, latitude, and longitude).
         This enhanced DataFrame is then stored as an attribute of the
         FlightData class for further analysis or reference.
 
@@ -322,7 +323,7 @@ class FlightData:
         Raises
         ------
         ValueError
-            If no airports are found in the specified country, 
+            If no airports are found in the specified country,
             or if the provided country parameter is not
             a valid country name within the airports data.
 
@@ -479,7 +480,7 @@ class FlightData:
         flights using distinct marker styles.
         - This method relies on the distances DataFrame, which should already
         be populated with the distances between all pairs of
-        airports in the dataset. It is assumed that this DataFrame 
+        airports in the dataset. It is assumed that this DataFrame
         includes information about the source and destination airports,
         their countries, latitudes, longitudes, and the calculated distances.
         - Cartopy is utilized for map rendering. Ensure Cartopy and
@@ -655,7 +656,7 @@ class FlightData:
         information using the 'Equipment' field from
         the routes data, which corresponds to the 'IATA code'
         in the airplane data. The accuracy and
-        comprehensiveness of this merged data are 
+        comprehensiveness of this merged data are
         crucial for the reliability of the analysis.
 
         The method dynamically adjusts the plot title to indicate
@@ -754,13 +755,13 @@ class FlightData:
             If set to True, filters the analysis to include only internal flights,
             i.e., flights to destinations within the same country. Defaults to False.
         cutoff : float, optional
-            The distance in kilometers used to differentiate between 
+            The distance in kilometers used to differentiate between
             short-haul and long-haul flights. Defaults to 1000.0 km.
 
         Returns
         -------
         None
-            Generates a map visualization of the flight routes 
+            Generates a map visualization of the flight routes
             departing from the specified country and prints potential
             emissions savings. This method does not return a value.
 
@@ -771,7 +772,7 @@ class FlightData:
         flights with different colors and markers.
         - This method assumes that the distances DataFrame is already
         populated with the necessary distance calculations between airports.
-        - Potential emissions savings are calculated based on the 
+        - Potential emissions savings are calculated based on the
         assumption that replacing short-haul flights with rail
         services can significantly reduce carbon emissions.
 
@@ -785,7 +786,7 @@ class FlightData:
         Assuming flight_data is an instance of the class with the necessary data loaded:
 
         >>> flight_data.departing_flights_country('Italy', internal=True, cutoff=1500)
-        This invocation will plot all internal flights within Italy, 
+        This invocation will plot all internal flights within Italy,
         differentiate short-haul flights, and display potential emissions savings.
         """
 
@@ -803,7 +804,7 @@ class FlightData:
             cutoff : float
                 Distance in kilometers to distinguish between
                 short-haul and long-haul flights. Routes below
-                this distance will be colored differently 
+                this distance will be colored differently
                 to signify potential for replacement by rail services.
 
             Returns
@@ -866,7 +867,7 @@ class FlightData:
                 )
 
             # Create a custom legend to denote colors
-            
+
             legend_elements = [
                 Line2D(
                     [0],
@@ -900,9 +901,9 @@ class FlightData:
                 xycoords="axes fraction",
                 verticalalignment="top",
                 bbox={
-                    'boxstyle': "round,pad=0.3",
-                    'edgecolor': "green",
-                    'facecolor': "white"
+                    "boxstyle": "round,pad=0.3",
+                    "edgecolor": "green",
+                    "facecolor": "white",
                 },
             )
 
@@ -916,10 +917,10 @@ class FlightData:
                 horizontalalignment="right",
                 verticalalignment="bottom",
                 bbox={
-                    'boxstyle': "round,pad=0.3",
-                    'edgecolor': "orange",
-                    'facecolor': "white",
-                    'alpha': 0.8,
+                    "boxstyle": "round,pad=0.3",
+                    "edgecolor": "orange",
+                    "facecolor": "white",
+                    "alpha": 0.8,
                 },
             )
 
@@ -1108,8 +1109,8 @@ class FlightData:
         information about the aircraft, such as its manufacturer,
         maximum speed, range, passenger capacity, and more.
         The information is then formatted into a DataFrame
-        for easy visualization and analysis. If the aircraft 
-        model is not found in the dataset, 
+        for easy visualization and analysis. If the aircraft
+        model is not found in the dataset,
         the method raises an error with suggestions for possible matches.
 
         Parameters
@@ -1122,7 +1123,7 @@ class FlightData:
         pandas.DataFrame
             A DataFrame containing detailed information about the aircraft,
             including model, manufacturer, max speed,
-            range, passenger capacity, crew requirements, 
+            range, passenger capacity, crew requirements,
             first flight date, production status, variants, and primary role.
 
         Raises
@@ -1154,7 +1155,6 @@ class FlightData:
             raise ValueError(
                 f"The aircraft {aircraft_name} is not in the database. Did you mean one of the following?\n{df[df[0].str.contains(aircraft_name)]}.\nIf not, choose among the following:\n {self.aircrafts()}"
             )
-
 
         llm = ChatOpenAI(temperature=0.1)
 
@@ -1249,5 +1249,6 @@ class FlightData:
 
         return df
 
+
 flight_data = FlightData()
-flight_data.departing_flights_country('Italy')
+flight_data.departing_flights_country("Italy")

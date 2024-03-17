@@ -1,4 +1,4 @@
-name: flights
+name: flights_mac
 channels:
   - conda-forge
   - defaults

@@ -1,5 +1,5 @@
 """
-Module to handle flight data
+This module contains a class for examining and analyzing international flight and airport data.
 """
 
 import os
@@ -17,11 +17,6 @@ import langchain
 from IPython.display import Markdown, display
 import seaborn as sns
 from ast import literal_eval
-
-###############################################################################################
-################################# FlightData class ############################################
-###############################################################################################
-
 
 class FlightData:
     """
@@ -86,6 +81,8 @@ class FlightData:
     >>> print(flight_data.aircrafts())
     >>> df = flight_data.aircraft_info('Boeing 747')
     >>> print(df)
+
+
     """
 
     class Config:
@@ -103,7 +100,7 @@ class FlightData:
     def __init__(self, **data):
         super().__init__(**data)      
         
-        download_dir = os.path.join("..", "downloads")
+        download_dir = os.path.join(".", "downloads")
         data_url = "https://gitlab.com/adpro1/adpro2024/-/raw/main/Files/flight_data.zip"
         data_files = {
             "airplanes": "airplanes.csv",

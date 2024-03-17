@@ -18,7 +18,7 @@ from IPython.display import Markdown, display
 import seaborn as sns
 from ast import literal_eval
 
-class FlightData:
+class FlightData(BaseModel):
     """
     A class for examining and analyzing international flight and airport data.
 
@@ -887,4 +887,4 @@ class FlightData:
         df = pd.DataFrame([res])
 
         return df
-
+    
